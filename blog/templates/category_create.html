@@ -1,0 +1,15 @@
+{% extends "base.html" %}  
+{% block content %}
+<form action="" method="post" name="category_form" id="category_form">
+{{form.hidden_tag()}}
+<p>类别名称</p>
+<p>{{form.name(size=50)}}<p>
+{% for error in form.errors.name %}
+<span style="color: red;">{{ error }}</span>
+{% endfor %}	
+
+<hr/>
+
+<input type="submit" value="保存"  style="background-color:#999999; background-image:none" >
+ </form> 
+{% endblock %} 

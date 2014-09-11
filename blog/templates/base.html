@@ -1,0 +1,32 @@
+<html xmlns="http://www.w3.org/1999/xhtml" >
+{% block base_css %}
+<link href="{{url_for('static',filename='css/base.css')}}" rel="stylesheet" type="text/css">
+{% endblock %}
+{% block script %}
+{% include 'script.html' %}
+{% endblock %}
+{% block meta %}
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+{% endblock %}
+<head>
+<link rel="shortcut icon" type="image/ico" href="{{url_for('static',filename='favicon.ico')}}">
+{% if title %}
+<title>{{title}}-我的博客</title>
+{% else %}
+<title>我的博客</title>
+{% endif %}
+</head>
+<body>
+{% include 'head.html' %}
+{% block categorybar %}
+{% endblock %}
+
+<hr width="100%" align="center" style="border-style: inset;color: #99CCFF; size:10 ; " />
+
+        {% block content %}
+        {% endblock %}
+
+<br/>
+{% include 'footer.html' %}
+</body>
+</html>

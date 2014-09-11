@@ -1,0 +1,50 @@
+<script type = "text/javascript" src = "{{ url_for('static', filename='js/tinymce/tinymce.min.js')}}" ></script>
+<script type = "text/javascript" src = "{{ url_for('static', filename='js/jquery/jquery-2.1.1.js')}}" ></script>
+<script type = "text/javascript">
+    /*tinymce初始化设置*/
+tinymce.init({
+     language :'zh_CN',
+     browser_spellcheck :true,
+     elements : "mceEditor",
+     mode : "exact",
+     theme:"modern",
+     skin:"pepper-grinder",
+     apply_source_formatting : true,
+     toolbar: ["fontselect | fontsizeselect | forecolor bold italic underline strikethrough | alignleft aligncenter alignright", "code undo redo | cut copy paste pasteword,pastetext | bullist numlist outdent indent | link unlink image media pagebreak   fullscreen"],
+     plugins: 'image anchor autolink autoresize autosave bbcode charmap code colorpicker fullscreen insertdatetime link lists importcss media noneditable pagebreak paste preview print save searchreplace spellchecker tabfocus table template textcolor textpattern visualblocks visualchars wordcount ',
+
+});
+</script>
+<script type = "text/javascript">
+/*得到tinymce纯文本*/
+function sumarticle(){
+ var ed = tinymce.activeEditor;
+ var e = ed.getBody();
+ ed.selection.select(e);
+ var text = ed.selection.getContent( { 'format' : 'text' } );
+ var first_500 = text.substr(0, 200);
+ document.getElementById('textformat').value=first_500;
+ document.getElementById('article_form').sumbit();
+ }
+</script>
+<script type = "text/javascript">
+    //渐入
+function msgin(){
+    $("#msg").fadeIn();
+}
+ /*两秒消失*/
+function msgout(){
+    $("#msg").fadeOut();
+}
+setTimeout("msgin()",500);
+setTimeout("msgout()",2500);
+</script>
+<script type = "text/javascript">
+<script type = "text/javascript">
+
+<script type = "text/javascript">
+
+</script>
+<script type = "text/javascript">
+
+</script>

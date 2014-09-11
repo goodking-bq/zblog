@@ -1,0 +1,24 @@
+{% extends "base.html" %}  
+{% block content %}
+<div>
+    <div style="margin-left:auto; margin-right:auto;white-space:normal;width:80%">
+        <div style="background-color:white">
+            <h1 style="text-align:center">
+                {{article.title}}
+            </h1>
+            <hr/>
+            <pre style="background-color:white;height:400px">
+                {{article.body|safe}}
+            </pre>
+        </div>
+        <div>
+            <a href="{{url_for('article_edit',id=article.id)}}"style="text-decoration:none">
+                <img src="{{url_for('static',filename='img/edit.png')}}"/>
+            </a>
+        </div>
+    </div>
+    <hr/>
+</div>
+{% endblock%}
+
+

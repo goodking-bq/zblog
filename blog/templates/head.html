@@ -1,0 +1,35 @@
+
+<div  class="head" >
+    <div id="center">
+        <div style="float:left">
+            <a href="{{ url_for('index') }}"style="text-decoration:none"  class="a_img">
+                <img src="{{url_for('static',filename='img/house.png')}}" class='div_img' />
+                <img src="{{url_for('static',filename='img/主页.png')}}" class='div_img'/>
+            </a>
+        </div>
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        {% for message in messages %}
+            <a id="msg">{{ message }}</a>
+        {% endfor %}
+        {% endif %}
+        {% endwith %}
+        <div style="float:right">
+           {% if g.user.is_authenticated() %}
+            <a href="{{ url_for('logout') }}">
+                <img src="{{url_for('static',filename='img/exit.png')}}"/>
+            </a>
+            <a href="{{ url_for('article_create') }}">
+                <img src="{{url_for('static',filename='img/New.png')}}"/>
+            </a>&nbsp
+           {% else %}
+            <a href="{{ url_for('register')}}">
+                <img src="{{url_for('static',filename='img/register.png')}}"/>
+            </a>
+            <a href="{{ url_for('login')}}">
+                <img src="{{url_for('static',filename='img/login.png')}}"/>
+            </a>
+           {% endif%}
+        </div>
+    </div>
+</div>

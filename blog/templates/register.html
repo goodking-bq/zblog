@@ -1,0 +1,36 @@
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 align="center">注册</h1>
+<div   style="width:90% ; background-color: white; margin:auto">
+<form action="" method="post" name="注册" id="注册">
+    <div align="center">{{form.hidden_tag()}}
+    </div>
+	
+    <table align="center" >
+    <tr >
+	<td width="20%" align="right"> 请输入Email：</td>
+	<td width="50%">
+        {{form.email(size=50)}}
+	</td>
+	<td>
+        {% for error in form.errors.email %}
+        <span style="color: red;">{{ error }}</span>
+        {% endfor %}	</td>
+    </tr>
+    <tr>
+	<td></td>
+	<td>	
+	</td>    
+    </tr>
+    </table>
+    <p align="center"><input type="submit" value="确认">
+    </p>
+    
+	
+</form>
+</div>
+
+{% endblock %}

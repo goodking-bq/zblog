@@ -1,0 +1,56 @@
+<!-- extend base layout -->
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+{% extends "base.html" %}
+
+{% block content %}
+<script type="text/javascript">
+function set_openid(openid, pr)
+{
+    u = openid.search('<username>')
+    if (u != -1) {
+        // openid requires username
+        user = prompt('Enter your ' + pr + ' username:')
+        openid = openid.substr(0, u) + user
+    }
+    form = document.forms['login'];
+    form.elements['openid'].value = openid
+}
+</script>
+<h1 align="center">登陆</h1>
+<div   style="width:90% ; background-color: white; margin:auto">
+<form action="" method="post" name="登陆" id="登陆">
+    <div align="center">{{form.hidden_tag()}}
+    </div>
+    <table align="center" >
+    <tr >
+	<td width="20%" align="right"> 请输入Email：</td>
+	<td width="50%">
+        {{form.email(size=50)}}
+        {% for error in form.errors.email %}
+        <span style="color: red;">[{{error}}]</span>
+        {% endfor %}	</td>
+    </tr>
+    <tr >
+        <td align="right">请输入密码 ：</td>
+		<td>
+        {{form.passwd(size=50)}}
+        {% for error in form.errors.passwd %}
+        <span style="color: red;">[{{error}}]</span>
+        {% endfor %}
+		</td>
+    </tr>
+    <tr >
+	<td></td>
+	 <td>
+	{{form.remember_me}} 请记住我
+	</td>
+    </tr>
+    </table>
+    <p align="center"><input type="submit" value="确认">
+    </p>
+    
+	
+</form>
+</div>
+{% endblock %}
+
