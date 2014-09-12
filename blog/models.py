@@ -6,6 +6,9 @@ from config import  ARTICLES_PER_PAGE,RANDOM_PASSWORD_LENGTH
 from datetime import  datetime
 ROLE_USER=0
 ROLE_ADMIN=1
+
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key = True)
     nickname = db.Column(db.String(64), index = True, unique = True)
@@ -53,6 +56,10 @@ class User(db.Model):
         from blog.extend.StringHelper import make_random_passwd
         pwd=make_random_passwd(RANDOM_PASSWORD_LENGTH,pwd,email)
         return pwd
+    @classmethod
+    def count_all(cls):
+        count = db.session.query(db.func.count(User.id).label('user_all')).first().user_all
+        return count
 class User_salt(db.Model):
     id=db.Column(db.Integer,primary_key=True)
     email = db.Column(db.String(128))
@@ -65,7 +72,6 @@ class User_salt(db.Model):
             return  U.salt
         else:
             return  None
-
 class Article(db.Model):
     __tablename__ = 'article'
     __searchable__ = ['body','title']
@@ -120,13 +126,16 @@ class Article(db.Model):
         elif month<>'all' and name <>'all':
             cg = Category.find_by_name(name)
             if cg:
-                #art=Article.query.filter(Article.months == month and Article.category_id ==cg.id).order_by(Article.months.desc())
                 art=Article.query.filter(Article.months == month, Article.category_id==cg.id).order_by(Article.timestamp.desc())
                 return art.paginate(page, ARTICLES_PER_PAGE, False)
     @classmethod
     def count_by_month(cls):
         month_count = db.session.query(Article.months , db.func.count('*').label('num')).group_by(Article.months).all()
         return month_count
+    @classmethod
+    def count_all(cls):
+        count = db.session.query(db.func.count(Article.id).label('article_count')).first().article_count
+        return count
 whooshalchemy.whoosh_index(blog,Article)
 class Category(db.Model):
     id=db.Column(db.Integer, primary_key = True)
@@ -140,8 +149,6 @@ class Category(db.Model):
     @classmethod
     def find_by_name(self,name):
         return self.query.filter_by(name=name).first()
-
-
 class Visit_log(db.Model):
     id=db.Column(db.Integer, primary_key = True)
     timestamp=db.Column(db.DateTime,default=datetime.now())
@@ -152,14 +159,50 @@ class Visit_log(db.Model):
     year_month_day=db.Column(db.String(10),default=str(datetime.now())[:10])
 
     @classmethod
-    def get_year(self):
+    def count_all(cls):
+        count = db.session.query(db.func.count(Visit_log.id).label('visit_all')).first().visit_all
+        return count
+    @classmethod
+    def count_by_day(cls):
+        count=Visit_log.query.filter(Visit_log.year_month_day == str(datetime.now())[:10]).count()
+        return count
+    @classmethod
+    def count_by_year(self):
         return self.timestamp[:4]
-    @classmethod
-    def get_year_month(self):
-        return self.timestamp[:7]
-    @classmethod
-    def get_year_month_day(self):
-        return self.timestamp[:10]
-        
+class Login_log(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    email = db.Column(db.String(100))
+    timestamp = db.Column(db.DateTime,default=datetime.now())
+    ipaddr = db.Column(db.String(15))
+    year = db.Column(db.String(4),default=datetime.now().year)
+    year_month = db.Column(db.String(7),default=str(datetime.now())[:7])
+    year_month_day = db.Column(db.String(10),default=datetime.now().date())
 
-    
+    def __str__(self):
+        return self.email
+    @classmethod
+    def count_all(cls):
+        count = db.session.query(db.func.count(Login_log.id).label('login_all')).first().login_all
+        return count
+class Tj(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    visit_all = db.Column(db.Integer)
+    visit_day = db.Column(db.Integer)
+    visit_month = db.Column(db.Integer)
+    visit_year = db.Column(db.Integer)
+    article_all = db.Column(db.Integer)
+    user_all = db.Column(db.Integer)
+    login_all = db.Column(db.Integer)
+    nowtimes = db.Column(db.DateTime,default=datetime.now())
+
+    @classmethod
+    def tongji(cls):
+        tj=Tj()
+        tj.visit_all=Visit_log.count_all()
+        tj.visit_day=Visit_log.count_by_day()
+        tj.article_all=Article.count_all()
+        tj.user_all=User.count_all()
+        #tj.login_all=Login_log.count_all()
+        tj.nowtimes=datetime.now().time()
+        return tj
+

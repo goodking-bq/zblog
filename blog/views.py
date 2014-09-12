@@ -4,7 +4,7 @@ from blog import blog, db, lm, oid
 from flask import render_template, flash, redirect , session, url_for, request, g
 from forms import LoginForm ,EditForm,RegisterForm,ArticleForm,CategoryForm,SearchForm
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from models import User, ROLE_USER, ROLE_ADMIN,Article,Category,Visit_log
+from models import User, ROLE_USER, ROLE_ADMIN,Article,Category,Visit_log,Tj
 from datetime import datetime
 from flask import copy_current_request_context
 
@@ -17,6 +17,7 @@ def index(categoryname='all',month='all',page=1):
     category=Category.query.all()
     article=Article.article_per_page(categoryname,month,page)
     count=Article.count_by_month()
+    tj = Tj.tongji()
     return render_template("index.html",
                        title = 'Home',
                        user=user,
@@ -24,7 +25,8 @@ def index(categoryname='all',month='all',page=1):
                        category=category,
                        categoryname=categoryname,
                        month=month,
-                       count=count)
+                       count=count,
+                       tj=tj)
 @oid.loginhandler
 def login():
     if g.user is not None and g.user.is_authenticated():
@@ -58,10 +60,10 @@ def before_request():
         g.user.last_seen = datetime.now()
         db.session.add(g.user)
         db.session.commit()
-    if request.url.find('static')<0:
+    if request.url.find('static')<0 and request.url.find('favicon.ico')<0:
         log=Visit_log(timestamp=datetime.now(),
                       ipaddr=request.remote_addr,
-                      visiturl=request.url_root)
+                      visiturl=request.base_url)
         db.session.add(log)
         db.session.commit()
 
