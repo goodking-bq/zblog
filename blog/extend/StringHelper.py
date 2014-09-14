@@ -11,7 +11,7 @@ from datetime import  datetime
 
 basicstring='''1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-[]{}/'''
 def make_random_passwd(l,pwd,email):
-    from blog.models import User_salt
+    from blog.models import User_salt,User
     from blog import db
     salt=User_salt()
     if pwd==None:
@@ -32,10 +32,12 @@ def make_random_passwd(l,pwd,email):
     return  {'pwd':pwd,
              'pwdmd5':pwdmd5,
              'email':email}
-
+def check_passwd(email,passwd):
+    pwdmd5=make_random_passwd(5,'vFT]f','120225883@qq.com')
+    print pwdmd5
 def get_avatar_url(email,size):
     md5str=md5(email).hexdigest()
     avatar_url='http://www.gravatar.com/avatar/' + md5str + '?d=mm&s=' + str(size)
     return  avatar_url
 
-print make_random_passwd(5,None,'120225883@qq.com')
+print make_random_passwd(5,'vFT]f','120225883@qq.com')

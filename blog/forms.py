@@ -5,10 +5,12 @@ from wtforms.validators import Required,Length,Email
 from blog.models import User,Article,Category
 
 class LoginForm(Form):
-     #username = TextField('username', validators = [Required(u'不能为空')])
-     email = TextField('email', validators = [Required(u'不能为空！')])
-     passwd=PasswordField('passwd',validators = [Required(u'不能为空！')])
-     remember_me = BooleanField('remember_me', default = False)
+    email = TextField('email', validators = [Required(u'不能为空')],id = 'emailipt')
+    passwd=PasswordField('passwd',validators = [Required(u'不能为空')],id = 'passwdipt')
+    remember_me = BooleanField('remember_me', default = False)
+
+
+
 class EditForm(Form):
      nickname = TextField('nickname', validators = [Required()])
      about_me = TextAreaField('about_me', validators = [Length(min = 0, max = 140)])

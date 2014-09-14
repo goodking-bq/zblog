@@ -34,9 +34,8 @@ def login():
     if g.user is not None and g.user.is_authenticated():
         return redirect(url_for('index'))
     form = LoginForm(request.form)
-    if form.validate_on_submit() and request.method=='POST':
-        pwdmd5=User.make_random_passwd(form.passwd.data,form.email.data)['pwdmd5']
-        user = User.query.filter_by(email = form.email.data,passwd=pwdmd5).first()
+    if form.validate_on_submit() and request.method == 'POST':
+        user = User.user_check(passwd=form.passwd.data , email=form.email.data)
         remember_me = False
         if 'remember_me' in session:
             remember_me = session['remember_me']
@@ -50,7 +49,7 @@ def login():
             db.session.commit()
             return redirect(request.args.get("next") or url_for("index"))
         else:
-            flash(u'登录失败')
+            flash(u'用户名或密码错误')
             return redirect(url_for('login'))
     return render_template('login.html',
         title = u'登陆',
@@ -126,7 +125,7 @@ def register():
                   nickname=form.email.data,
                   passwd=pwd['pwdmd5'],
                   register_ip=request.remote_addr)
-        createdate=datetime.now(),
+        user.createdate=datetime.now(),
         db.session.add(user)
         db.session.commit()
         user.passwd=pwd['pwd']

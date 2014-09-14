@@ -39,7 +39,16 @@ class User(db.Model):
     
     def __repr__(self):
         return '<User %r>' % (self.nickname)    
-        
+
+    @classmethod
+    def user_check(cls,email,passwd):
+        pwdmd5 = User.make_random_passwd(passwd,email)['pwdmd5']
+        user = User.query.filter_by(email = email,passwd = pwdmd5).first()
+        if user:
+            return user
+        else:
+            return False
+
     @staticmethod
     def make_unique_nickname(nickname):
         if User.query.filter_by(nickname = nickname).first() == None:

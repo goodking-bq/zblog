@@ -1,26 +1,37 @@
-{% extends "base.html" %}  
+{% extends "base.html" %}
 {% block content %}
- <div style="height:600px;">
-    <div style="width:80%; margin-left:auto; margin-right:auto;">
-<form action="" method="post" name="article_form" id="article_form">
-{{form.hidden_tag()}}
-<p>标题</p>
-<p>{{form.title(size=50)}}<p>
-{% for error in form.errors.title %}
-<span style="color: red;">{{ error }}</span>
-{% endfor %}	
-<p>{{form.body(cols = 100, rows = 15)}}</p>
-{% for error in form.errors.body %}
-<span style="color: red;">{{ error }}</span>
-{% endfor %}	
-类别：{{form.category_id}}
-{% for error in form.errors.category_id %}
-<span style="color: red;">{{ error }}</span>
-{% endfor %}	
-<hr/>
-<input type="hidden"  id='textformat' name='textformat'/>
-<input type="image" onclick="sumarticle()" value="保存"  src="{{url_for('static',filename='img/save.png')}}"/>
- </form>
-</div>
+    <div class="input-group container">
+        <form action="" method="post" name="article_form" id="article_form">
+            {{ form.hidden_tag() }}
+            <div class="row container">
+                <div class="col-lg-4">
+                    <div class="input-group">
+                        <span class="input-group-addon">标题</span>
+                        {{ form.title(size=50,class="form-control") }}
+                        {% for error in form.errors.title %}
+                            <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="input-group ">
+                        <span class="input-group-addon">类别</span>
+                        {{ form.category_id(class="btn btn btn-default dropdown-toggle ") }}
+                    </div>
+                </div>
+            </div>
+            <hr/>
+            <p>{{ form.body(cols = 100, rows = 15) }}</p>
+            {% for error in form.errors.body %}
+                <span style="color: red;">{{ error }}</span>
+            {% endfor %}
+            <hr/>
+            <input type="hidden" id='textformat' name='textformat'/>
+            <button type="image" onclick="sumarticle()" class="btn btn-success" }}">提 交
+            </button>
+        </form>
     </div>
+    <br/>
+    <br/>
+    <br/>
 {% endblock %} 
