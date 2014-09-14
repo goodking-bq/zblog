@@ -1,4 +1,5 @@
 <div id="user">
+{% if g.user.is_authenticated() %}
     <div align="center" >
         <a href="http://www.gravatar.com/" target="_blank">
             <img  src="{{g.user.avatar(60)}}" title="点击编辑图像"/>
@@ -12,8 +13,9 @@
             <img src="{{url_for('static',filename='img/setup.png')}}"/>
         </a>
     </div>
-    <div>
     <hr/>
+    {% endif %}
+    <div>
     <form style="display: inline;" method="post" name="search" action="{{ url_for('search') }}">
        {{g.search_form.hidden_tag()}}
         {{ g.search_form.search(size=30) }}

@@ -1,17 +1,16 @@
 # -*- coding:utf-8 -*-
 
-from blog import blog, db, lm, oid
+from blog import blog, db, lm
 from flask import render_template, flash, redirect , session, url_for, request, g
 from forms import LoginForm ,EditForm,RegisterForm,ArticleForm,CategoryForm,SearchForm
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from models import User, ROLE_USER, ROLE_ADMIN,Article,Category,Visit_log,Tj
+from models import User, ROLE_USER, ROLE_ADMIN,Article,Category,Visit_log,Tj,Login_log
 from datetime import datetime
 from flask import copy_current_request_context
 
 @blog.route('/',methods = ['GET', 'POST'])
 @blog.route('/index',methods = ['GET', 'POST'])
 @blog.route('/index/<string:categoryname>/<string:month>/<int:page>',methods = ['GET', 'POST'])
-#@login_required
 def index(categoryname='all',month='all',page=1):
     user = g.user
     category=Category.query.all()
@@ -27,30 +26,41 @@ def index(categoryname='all',month='all',page=1):
                        month=month,
                        count=count,
                        tj=tj)
-@oid.loginhandler
+@lm.user_loader
+def load_user(id):
+    return User.query.get(int(id))
+
 def login():
     if g.user is not None and g.user.is_authenticated():
-        return redirect(url_for('login'))
+        return redirect(url_for('index'))
     form = LoginForm(request.form)
     if form.validate_on_submit() and request.method=='POST':
         pwdmd5=User.make_random_passwd(form.passwd.data,form.email.data)['pwdmd5']
         user = User.query.filter_by(email = form.email.data,passwd=pwdmd5).first()
+        remember_me = False
+        if 'remember_me' in session:
+            remember_me = session['remember_me']
+            session.pop('remember_me', None)
         if user:
-            login_user(user,remember = True)
+            login_user(user,remember = remember_me)
             flash(u'恭喜，登录成功！')
-            return redirect(url_for('index'))
+            log=Login_log(email=user.email,
+                          ipaddr=request.remote_addr)
+            db.session.add(log)
+            db.session.commit()
+            return redirect(request.args.get("next") or url_for("index"))
         else:
             flash(u'登录失败')
             return redirect(url_for('login'))
     return render_template('login.html',
-        title = 'Sign In',
+        title = u'登陆',
         form = form)
-@lm.user_loader
-def load_user(id):
-    return User.query.get(int(id))
-@oid.after_login
-def after_login(resp):
-    pass
+
+@login_required
+def logout():
+    logout_user()
+    flash(u'已退出登录')
+    return redirect(url_for('index'))
 
 @blog.before_request
 def before_request():
@@ -66,14 +76,6 @@ def before_request():
                       visiturl=request.base_url)
         db.session.add(log)
         db.session.commit()
-
-
-def logout():
-    logout_user()
-    flash(u'已退出登录')
-    return redirect(url_for('index'))
-
-
 
 @login_required
 def user(nickname):
@@ -115,9 +117,6 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 from blog.extend.EmailHelper import register_mail
-
-
-
 def register():
     form=RegisterForm(request.form)
     if request.method=='POST' and form.validate():

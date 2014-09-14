@@ -1,35 +1,44 @@
-
-<div  class="head" >
-    <div id="center">
-        <div style="float:left">
-            <a href="{{ url_for('index') }}"style="text-decoration:none"  class="a_img">
-                <img src="{{url_for('static',filename='img/house.png')}}" class='div_img' />
-                <img src="{{url_for('static',filename='img/主页.png')}}" class='div_img'/>
-            </a>
+<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
+                    aria-expanded="false" aria-controls="navbar">
+                <span class="sr-only">欢迎来到zblog</span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">欢迎来到zblog</a>
         </div>
-        {% with messages = get_flashed_messages() %}
-        {% if messages %}
-        {% for message in messages %}
-            <a id="msg">{{ message }}</a>
-        {% endfor %}
-        {% endif %}
-        {% endwith %}
-        <div style="float:right">
-           {% if g.user.is_authenticated() %}
-            <a href="{{ url_for('logout') }}">
-                <img src="{{url_for('static',filename='img/exit.png')}}"/>
-            </a>
-            <a href="{{ url_for('article_create') }}">
-                <img src="{{url_for('static',filename='img/New.png')}}"/>
-            </a>&nbsp
-           {% else %}
-            <a href="{{ url_for('register')}}">
-                <img src="{{url_for('static',filename='img/register.png')}}"/>
-            </a>
-            <a href="{{ url_for('login')}}">
-                <img src="{{url_for('static',filename='img/login.png')}}"/>
-            </a>
-           {% endif%}
+        <div id="navbar" class="collapse navbar-collapse">
+            <ul class="nav navbar-nav">
+                <li class="active"><a href="{{ url_for('index') }}">主页</a></li>
+                <li><a href="#about">关于我</a></li>
+            </ul>
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    {% for message in messages %}
+                        <button id="msg" class="btn navbar-btn btn-warning">
+                            <span class="glyphicon glyphicon-comment"></span>{{ message }}
+                        </button>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            {% if g.user.is_authenticated() %}
+                <div class="navbar-right btn-group ">
+                    <button class="navbar-btn btn-default btn"><a href="{{ url_for('article_create') }}">新增文章</a></button>
+                    <button class="navbar-btn btn-default btn"><a href="{{ url_for('edit') }}">个人设置</a></button>
+                    <button class="navbar-btn btn-default btn"><a href="{{ url_for('logout') }}">登出</button>
+                </div>
+            {% else %}
+                <div class="navbar-right btn-group ">
+                    <button class="navbar-btn btn-default btn"><a href="{{ url_for('register') }}">注册</a></button>
+                    <button class="navbar-btn btn-default btn"><a href="{{ url_for('login') }}">登陆</button>
+                </div>
+            {% endif %}
         </div>
     </div>
-</div>
+</nav>
+<br/>
+<br/>
+<br/>
+
+

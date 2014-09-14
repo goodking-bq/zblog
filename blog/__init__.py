@@ -14,6 +14,7 @@ db=SQLAlchemy(blog)
 
 lm = LoginManager()
 lm.init_app(blog)
+lm.login_view = 'login'
 oid = OpenID(blog, os.path.join(basedir, 'tmp'))
 
 #mail

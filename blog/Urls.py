@@ -4,7 +4,7 @@ from blog.extend.UrlsHelper import url
 
 
 
-url('/login', 'views.login')
+url('/login', 'views.login',methods = ['GET', 'POST'])
 url('/logout','views.logout')
 url('/user/<nickname>','views.user')
 url('/edit/','views.edit',methods = ['GET', 'POST'])

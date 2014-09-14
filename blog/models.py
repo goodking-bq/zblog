@@ -202,7 +202,7 @@ class Tj(db.Model):
         tj.visit_day=Visit_log.count_by_day()
         tj.article_all=Article.count_all()
         tj.user_all=User.count_all()
-        #tj.login_all=Login_log.count_all()
+        tj.login_all=Login_log.count_all()
         tj.nowtimes=datetime.now().time()
         return tj
 
