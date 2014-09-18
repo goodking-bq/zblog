@@ -1,5 +1,7 @@
 <script type = "text/javascript" src = "{{ url_for('static', filename='js/tinymce/tinymce.min.js')}}" ></script>
 <script type = "text/javascript" src = "{{ url_for('static', filename='js/jquery/jquery-2.1.1.js')}}" ></script>
+<script type = "text/javascript" src = "{{ url_for('static', filename='js/bootstrap.min.js')}}" ></script>
+
 <script type = "text/javascript">
     /*tinymce初始化设置*/
 tinymce.init({
@@ -40,9 +42,11 @@ setTimeout("msgin()",500);
 setTimeout("msgout()",2500);
 </script>
 <script type = "text/javascript">
-$(function () {
-    $('#ctgtab a:last').tab('show')
-  })
+$(function(){
+    $('a').on('shown.bs.tab', function (e) {
+        $(e.target).addClass('active');
+    });
+}
 </script>
 <script type = "text/javascript">
 

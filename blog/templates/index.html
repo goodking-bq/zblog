@@ -14,9 +14,15 @@
         <div class="collapse navbar-collapse">
             <ul class="nav nav-tabs navbar-nav" role="tablist" id="ctgtab">
                 {% for c in category %}
-                    <li role="presentation">
-                        <a href="{{ url_for('index',categoryname=c.name,month=month,page=1) }}">{{ c.name }}</a>
+                    {% if request.url.find(c.name)>=0  %}
+                    <li role="presentation" class="active">
+                        <a  href="{{ url_for('index',categoryname=c.name,month=month,page=1) }}">{{ c.name }}</a>
                     </li>
+                    {% else %}
+                    <li role="presentation">
+                        <a  href="{{ url_for('index',categoryname=c.name,month=month,page=1) }}">{{ c.name }}</a>
+                    </li>
+                    {% endif %}
                 {% endfor %}
                 {% if g.user.is_authenticated() %}
                     <li role="presentation"><a href="{{ url_for('category_create') }}"><span
