@@ -3,7 +3,7 @@
 import os
 
 CSRF_ENABLED = False
-SECRET_KEY = 'you-will-never-guess'
+SECRET_KEY = '120225883@qq.com'
 #WTF_CSRF_ENABLED  = True
 
 

@@ -2,18 +2,21 @@
 
 from blog import blog, db, lm
 from flask import render_template, flash, redirect , session, url_for, request, g
-from forms import LoginForm ,EditForm,RegisterForm,ArticleForm,CategoryForm,SearchForm
+from forms import LoginForm ,UserEditForm,\
+                RegisterForm,ArticleCreateForm,\
+                ArticleEditForm,CategoryForm,SearchForm,UserChangePwdForm
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from models import User, ROLE_USER, ROLE_ADMIN,Article,Category,Visit_log,Tj,Login_log
+from models import User, ROLE_USER,User_LOCKED,IS_USE,Article,Category,Visit_log,Tj,Login_log
 from datetime import datetime
 from flask import copy_current_request_context
+from blog.extend.Ubb2Html import Ubb2Html
 
 @blog.route('/',methods = ['GET', 'POST'])
 @blog.route('/index',methods = ['GET', 'POST'])
 @blog.route('/index/<string:categoryname>/<string:month>/<int:page>',methods = ['GET', 'POST'])
 def index(categoryname='all',month='all',page=1):
     user = g.user
-    category=Category.query.all()
+    category=Category.query.filter_by(is_use=1).order_by(Category.id)
     article=Article.article_per_page(categoryname,month,page)
     count=Article.count_by_month()
     tj = Tj.tongji()
@@ -36,10 +39,7 @@ def login():
     form = LoginForm(request.form)
     if form.validate_on_submit() and request.method == 'POST':
         user = User.user_check(passwd=form.passwd.data , email=form.email.data)
-        remember_me = False
-        if 'remember_me' in session:
-            remember_me = session['remember_me']
-            session.pop('remember_me', None)
+        remember_me = form.remember_me.data
         if user:
             login_user(user,remember = remember_me)
             flash(u'恭喜，登录成功！')
@@ -77,10 +77,10 @@ def before_request():
         db.session.commit()
 
 @login_required
-def user(nickname):
-    user = User.query.filter_by(nickname = nickname).first()
+def user(nicename):
+    user = User.query.filter_by(nicename = nicename).first()
     if user == None:
-        flash('User ' + nickname + ' not found.')
+        flash('User ' + nicename + ' not found.')
         return redirect(url_for('index'))
     posts = [
         { 'author': user, 'body': 'Test post #1' },
@@ -91,21 +91,37 @@ def user(nickname):
         posts = posts)
 
 @login_required
-def edit():
-    form = EditForm(g.user.nickname)
-    if form.validate_on_submit():
-        g.user.nickname = form.nickname.data
-        g.user.about_me = form.about_me.data
+def usereditinfo():
+    form = UserEditForm()
+    pwdform = UserChangePwdForm()
+    if form.validate_on_submit() and request.method == 'POST':
+        g.user.nicename = form.nicename.data
+        g.user.info = form.info.data
+        g.user.url = form.url.data
         db.session.add(g.user)
         db.session.commit()
         flash(u'已保存修改！')
-        return redirect(url_for('edit'))
+        return redirect(url_for('usereditinfo'))
     else:
-        form.nickname.data = g.user.nickname
-        form.about_me.data = g.user.about_me
-    return render_template('edit.html',
+        form.nicename.data = g.user.nicename
+        form.info.data = g.user.info
+        form.url.data=g.user.url
+    return render_template('user/usereditinfo.html',
         form = form)
 
+def userchangepwd():
+    form=UserChangePwdForm()
+    if form.validate_on_submit() and request.method == 'POST':
+        flash(g.user.email)
+        pwd=User.make_random_passwd(pwd=form.password.data,
+                                    email=g.user.email)
+        g.user.passwd = pwd['pwdmd5']
+        db.session.add(g.user)
+        db.session.commit()
+        flash(u'密码修改成功！')
+        return redirect(url_for('usereditinfo'))
+    return render_template('user/userchangepwd.html',
+        form = form)
 @blog.errorhandler(404)
 def internal_error(error):
     return render_template('404.html'), 404
@@ -122,10 +138,11 @@ def register():
         pwd=User.make_random_passwd(email=form.email.data)
         user=User(email=pwd['email'],
                   role=ROLE_USER,
-                  nickname=form.email.data,
+                  nicename=form.email.data,
                   passwd=pwd['pwdmd5'],
+                  is_locked = User_LOCKED,
                   register_ip=request.remote_addr)
-        user.createdate=datetime.now(),
+        user.register_date=datetime.now(),
         db.session.add(user)
         db.session.commit()
         user.passwd=pwd['pwd']
@@ -143,22 +160,25 @@ def article_show(title):
 
 @login_required
 def article_create():
-    form=ArticleForm(request.form,g.user.id)
+    form=ArticleCreateForm(request.form,g.user.id)
     if request.method=='POST' and form.validate():
-        nowtime = datetime.now()
-        article=Article(title=form.title.data,
-                        body=form.body.data,
-                        user_id=g.user.id,
-                        category_id=form.category_id.data,
-                        text=request.form.get('textformat'),
-                        timestamp=nowtime
-                        )
-        article.create_date=nowtime
-        article.months=str(nowtime)[:7]
-        db.session.add(article)
-        db.session.commit()
-        flash(u'文章已创建！')
-        return redirect(url_for('index')) 
+        if not g.user.is_admin():
+            flash(u'非管理员不能创建文章！')
+            return redirect(url_for('index'))
+        else:
+            nowtime = datetime.now()
+            article=Article(title=form.title.data,
+                            body=Ubb2Html(form.body.data),
+                            user_id=g.user.id,
+                            category_id=form.category_id.data,
+                            text=request.form.get('textformat'),
+                            timestamp=nowtime
+                            )
+            article.post_date=nowtime
+            db.session.add(article)
+            db.session.commit()
+            flash(u'文章已创建！')
+            return redirect(url_for('index'))
    
     return render_template('article_create.html',
                            form=form)
@@ -166,18 +186,22 @@ def article_create():
 
 @login_required
 def article_edit(id):
-    form = ArticleForm(request.form)
+    form = ArticleEditForm(request.form)
     article=Article.find_by_id(int(id))
     if form.validate_on_submit():
-        article.title=form.title.data
-        article.body=form.body.data
-        article.text=request.form.get('textformat')
-        db.session.add(article)
-        db.session.commit()
-        flash(u'已保存修改!')
-        return redirect(url_for('article_edit',id=id))
+        if not g.user.is_admin():
+            flash(u'非管理员不能编辑文章！')
+            return redirect(url_for('index'))
+        else:
+            article.title=form.title.data
+            article.body=Ubb2Html(form.body.data)
+            article.category_id=form.category_id.data
+            article.text=request.form.get('textformat')
+            db.session.add(article)
+            db.session.commit()
+            flash(u'已保存修改!')
+            return redirect(url_for('article_edit',id=id))
     else:
-        
         form.title.data=article.title
         form.body.data=article.body
     return render_template('article_create.html',
@@ -187,13 +211,16 @@ def article_edit(id):
 def category_create():
     form=CategoryForm(request.form)
     if request.method=='POST' and form.validate():
-        #title=form.title.data
-        category=Category(name=form.name.data)
-        category.createdate=datetime.now()
-        db.session.add(category)
-        db.session.commit()
-        flash(u'类别已创建！')
-        return redirect(url_for('index')) 
+        if not g.user.is_admin():
+            flash(u'非管理员不能创建类别！')
+            return redirect(url_for('index'))
+        else:
+            category=Category(name=form.name.data)
+            category.createdate=datetime.now()
+            db.session.add(category)
+            db.session.commit()
+            flash(u'类别已创建！')
+            return redirect(url_for('index'))
     return render_template('category_create.html',
                            form=form)
 

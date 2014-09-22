@@ -3,7 +3,7 @@
 <script type = "text/javascript" src = "{{ url_for('static', filename='js/bootstrap.min.js')}}" ></script>
 
 <script type = "text/javascript">
-    /*tinymce初始化设置*/
+    /*tinymce初始化设置  fontselect | fontsizeselect | */
 tinymce.init({
      language :'zh_CN',
      browser_spellcheck :true,
@@ -12,7 +12,7 @@ tinymce.init({
      theme:"modern",
      skin:"pepper-grinder",
      apply_source_formatting : true,
-     toolbar: ["fontselect | fontsizeselect | forecolor bold italic underline strikethrough | alignleft aligncenter alignright", "code undo redo | cut copy paste pasteword,pastetext | bullist numlist outdent indent | link unlink image media pagebreak   fullscreen"],
+     toolbar: ["forecolor bold italic underline strikethrough | alignleft aligncenter alignright", "code undo redo | cut copy paste pasteword,pastetext | bullist numlist outdent indent | link unlink image media pagebreak   fullscreen"],
      plugins: 'image anchor autolink autoresize autosave bbcode charmap code colorpicker fullscreen insertdatetime link lists importcss media noneditable pagebreak paste preview print save searchreplace spellchecker tabfocus table template textcolor textpattern visualblocks visualchars wordcount ',
 
 });

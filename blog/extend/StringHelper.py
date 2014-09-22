@@ -28,13 +28,10 @@ def make_random_passwd(l,pwd,email):
     for i in range(1,5):
         pwdmd5=md5(pwdmd5).hexdigest()
     pwdmd5=b64encode(pwdmd5)
-    #pwdmd5=hash(pwdmd5)
     return  {'pwd':pwd,
              'pwdmd5':pwdmd5,
              'email':email}
-def check_passwd(email,passwd):
-    pwdmd5=make_random_passwd(5,'vFT]f','120225883@qq.com')
-    print pwdmd5
+
 def get_avatar_url(email,size):
     md5str=md5(email).hexdigest()
     avatar_url='http://www.gravatar.com/avatar/' + md5str + '?d=mm&s=' + str(size)

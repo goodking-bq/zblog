@@ -1,0 +1,19 @@
+<uwsgi>
+    <pythonpath>
+        /root/webhome/zblog/
+    </pythonpath>
+    <module>
+        run
+    </module>
+    <callable>
+        blog
+    </callable>
+    <socket>
+        127.0.0.1:3031
+    </socket>
+    <master/>
+    <processes>
+        4
+    </processes>
+    <memory-report/>
+</uwsgi>

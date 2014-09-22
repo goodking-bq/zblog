@@ -6,9 +6,9 @@
             {{ article.title }}
         </h3>
         <hr/>
-        <p>
+        <pre>
             {{ article.body|safe }}
-        </p>
+        </pre>
         <p class="text-center">
         <a href="{{ url_for('index') }}" class="btn btn-success ">返回</a>
         <a href="{{ url_for('article_edit',id=article.id) }}" class="btn btn-success ">编辑

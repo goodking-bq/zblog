@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block ext_css %}
+    <link href="{{ url_for('static',filename='css/register.css') }}" rel="stylesheet" type="text/css">
+{% endblock %}
+{% block content %}
+    <nav class="navbar container navbar-default" role="navigation">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed"
+                    data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand">修改：</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <ul class="nav nav-tabs navbar-nav" role="tablist" id="ctgtab">
+                <li role="presentation" class="active">
+                    <a href="{{ url_for('usereditinfo') }}">个人资料</a>
+                </li>
+                <li role="presentation">
+                    <a href="{{ url_for('userchangepwd') }}">修改密码</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    <div id="myTabContent" class="tab-content">
+        <div class="  container-fluid  in active" id="personinfo">
+            <form class="form-signin form-group" action="" method="post" role="from">
+                {{ form.hidden_tag() }}
+                <div class="input-group form-group has-success has-feedback">
+                    <label class="control-label " for="emailipt">昵 称：</label>
+                    {{ form.nicename(size=50,class="form-control") }}
+                    {% for error in form.errors.nicename %}
+                        <label class="control-label " style="color: red">{{ error }}</label>
+                    {% endfor %}
+                </div>
+                <div class="input-group form-group has-success has-feedback">
+                    <label class="control-label " for="emailipt">个人主页：</label>
+                    {{ form.url(size=50,class="form-control") }}
+                    {% for error in form.errors.url %}
+                        <label class="control-label " style="color: red">{{ error }}</label>
+                    {% endfor %}
+                </div>
+                <div class="input-group form-group has-warning has-feedback ">
+                    <label class="control-label" for="passwdipt">个人资料：</label>
+                    {{ form.info(cols = 40, rows = 4,class="form-control" ) }}
+                    {% for error in form.errors.info %}
+                        <span style="color: red;">{{ error }}</span>
+                    {% endfor %}
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-lg btn-primary btn-block" type="submit">修 改</button>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
