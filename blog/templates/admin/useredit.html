@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% block ext_css %}
+    <link href="{{ url_for('static',filename='js/responsive-tables/responsive-tables.css') }}" rel="stylesheet" type="text/css">
+{% endblock %}
+{% block content %}
+    <ol class="breadcrumb">
+        <li><a href="#">后台</a></li>
+        <li class="active">用户编辑</li>
+    </ol>
+    <hr/>
+    <div class="box-header well" data-original-title="">
+        <h2><i class="glyphicon glyphicon-user red"></i> 正在编辑用户：{{ user.nicename }}</h2>
+    </div>
+    <div id="myTabContent" class="tab-content container">
+        <div class="  container-fluid  in active" id="personinfo">
+            <form class="form-signin form-group" action="" method="post" role="from">
+                {{ form.csrf_token }}
+                <div class="input-group form-group has-success has-feedback">
+                    <label class="control-label " for="emailipt">用户邮箱： {{ user.email }}</label>
+                </div>
+                <div class="input-group form-group has-success has-feedback">
+                    <label class="control-label " for="emailipt">用户角色：</label>
+                    {{ form.role(class="form-control") }}
+                </div>
+                <div class="input-group form-group has-warning has-feedback ">
+                    <label class="control-label" for="passwdipt">锁定状态：</label>
+                    {{ form.is_locked(class="form-control" ) }}
+                </div>
+
+                <button class="btn btn-lg btn-primary " type="submit">保 存 修 改</button>
+
+            </form>
+        </div>
+    </div>
+{% endblock %}

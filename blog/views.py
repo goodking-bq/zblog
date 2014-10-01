@@ -4,19 +4,21 @@ from blog import blog, db, lm
 from flask import render_template, flash, redirect , session, url_for, request, g
 from forms import LoginForm ,UserEditForm,\
                 RegisterForm,ArticleCreateForm,\
-                ArticleEditForm,CategoryForm,SearchForm,UserChangePwdForm
+                ArticleEditForm,CategoryForm,SearchForm,UserChangePwdForm,\
+                UploadFileForm
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from models import User, ROLE_USER,User_LOCKED,IS_USE,Article,Category,Visit_log,Tj,Login_log
+from models import User,Link, ROLE_USER,User_LOCKED,IS_USE,Article,Category,Visit_log,Tj,Login_log
 from datetime import datetime
-from flask import copy_current_request_context
+#from flask import copy_current_request_context
 from blog.extend.Ubb2Html import Ubb2Html
+
 
 @blog.route('/',methods = ['GET', 'POST'])
 @blog.route('/index',methods = ['GET', 'POST'])
 @blog.route('/index/<string:categoryname>/<string:month>/<int:page>',methods = ['GET', 'POST'])
 def index(categoryname='all',month='all',page=1):
     user = g.user
-    category=Category.query.filter_by(is_use=1).order_by(Category.id)
+    category=Category.query.filter_by(is_use=1).order_by(Category.seq)
     article=Article.article_per_page(categoryname,month,page)
     count=Article.count_by_month()
     tj = Tj.tongji()
@@ -65,16 +67,20 @@ def logout():
 def before_request():
     g.search_form = SearchForm()
     g.user = current_user
+    g.tj = Tj.tongji()
     if g.user.is_authenticated():
         g.user.last_seen = datetime.now()
         db.session.add(g.user)
         db.session.commit()
+        if g.user.is_admin():
+            g.list_bar=Link.list_bar()
     if request.url.find('static')<0 and request.url.find('favicon.ico')<0:
         log=Visit_log(timestamp=datetime.now(),
                       ipaddr=request.remote_addr,
                       visiturl=request.base_url)
         db.session.add(log)
         db.session.commit()
+
 
 @login_required
 def user(nicename):
@@ -93,7 +99,6 @@ def user(nicename):
 @login_required
 def usereditinfo():
     form = UserEditForm()
-    pwdform = UserChangePwdForm()
     if form.validate_on_submit() and request.method == 'POST':
         g.user.nicename = form.nicename.data
         g.user.info = form.info.data
@@ -168,18 +173,19 @@ def article_create():
         else:
             nowtime = datetime.now()
             article=Article(title=form.title.data,
-                            body=Ubb2Html(form.body.data),
+                            body=form.body.data,
                             user_id=g.user.id,
                             category_id=form.category_id.data,
                             text=request.form.get('textformat'),
-                            timestamp=nowtime
+                            timestamp=nowtime,
+                            tag=form.tag.data,
+                            is_open=form.is_open.data
                             )
             article.post_date=nowtime
             db.session.add(article)
             db.session.commit()
             flash(u'文章已创建！')
             return redirect(url_for('index'))
-   
     return render_template('article_create.html',
                            form=form)
 
@@ -196,7 +202,10 @@ def article_edit(id):
             article.title=form.title.data
             article.body=Ubb2Html(form.body.data)
             article.category_id=form.category_id.data
+            article.tag=form.tag.data
             article.text=request.form.get('textformat')
+            article.is_open=form.is_open.data
+            article.timestamp=datetime.now()
             db.session.add(article)
             db.session.commit()
             flash(u'已保存修改!')
@@ -204,25 +213,13 @@ def article_edit(id):
     else:
         form.title.data=article.title
         form.body.data=article.body
+        form.tag.data=article.tag
+        form.category_id.data=article.category_id
+        form.is_open.data=article.is_open
     return render_template('article_create.html',
         form = form)
 
-@login_required
-def category_create():
-    form=CategoryForm(request.form)
-    if request.method=='POST' and form.validate():
-        if not g.user.is_admin():
-            flash(u'非管理员不能创建类别！')
-            return redirect(url_for('index'))
-        else:
-            category=Category(name=form.name.data)
-            category.createdate=datetime.now()
-            db.session.add(category)
-            db.session.commit()
-            flash(u'类别已创建！')
-            return redirect(url_for('index'))
-    return render_template('category_create.html',
-                           form=form)
+
 
 def search():
     if not g.search_form.validate_on_submit():
@@ -240,3 +237,4 @@ def search_result(search,page=1):
                        user=user,
                        article=result,
                        count=count)
+

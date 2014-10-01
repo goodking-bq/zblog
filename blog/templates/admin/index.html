@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+{% block content %}
+
+    <ol class="breadcrumb">
+        <li><a href="#">后台</a></li>
+        <li class="active">概况</li>
+    </ol>
+    <hr/>
+    <div class=" row">
+        <div class="col-md-3 col-sm-3 col-xs-6 nav-">
+            <a data-toggle="tooltip"  class="well top-block " href="/admin/users">
+                <i class="glyphicon glyphicon-user blue"></i>
+                <h4>总用户数 </h4>
+                <span class="badge bg-red">{{ g.tj.user_all }}</span>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6">
+            <a data-toggle="tooltip"  class="well top-block" href="/admin/article">
+                <i class="glyphicon glyphicon-book blue"></i>
+                <h4>总文章数</h4>
+                <span class="badge bg-red">{{ g.tj.article_all }}</span>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6">
+            <a data-toggle="tooltip"  class="well top-block" href="#">
+                <i class="glyphicon glyphicon-eye-open bg-blue"></i>
+                <h4>总访问量 </h4>
+                <span class="badge bg-red">{{ g.tj.visit_all }}</span>
+            </a>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6">
+            <a data-toggle="tooltip" class="well top-block" href="#">
+                <i class="glyphicon glyphicon-time blue"></i>
+                <h4>本月文章 </h4>
+                <span class="badge bg-red">3</span>
+            </a>
+        </div>
+    </div>
+{% endblock %}

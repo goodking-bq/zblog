@@ -1,0 +1,36 @@
+{% extends "admin/base.html" %}
+{% block ext_css %}
+    <link href="{{ url_for('static',filename='js/responsive-tables/responsive-tables.css') }}" rel="stylesheet" type="text/css">
+
+{% endblock %}
+{% block content %}
+    <ol class="breadcrumb">
+        <li><a href="#">后台</a></li>
+        <li class="active">类别编辑</li>
+    </ol>
+    <hr/>
+    <div class="box-header well" data-original-title="">
+        <h2><i class="glyphicon glyphicon-copyright-mark red"></i> 类别编辑</h2>
+    </div>
+    <hr/>
+    <div class="center-text center container">
+        <form action="" method="post" name="category_form" id="category_form">
+            {{ form.csrf_token }}
+            <div class="input-group col-md-6">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-copyright-mark red"></i> 类别名称</span>
+                    {{ form.name(class="form-control", placeholder="类别名称") }}
+            </div><br/>
+            <div class="input-group col-md-6">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-question-sign red"></i> 是否在用</span>
+                    {{ form.is_use(class="form-control") }}
+            </div><br/>
+            <div class="input-group col-md-6">
+                    <span class="input-group-addon"><i class="glyphicon glyphicon-circle-arrow-down red"></i> 显示顺序</span>
+                    {{ form.seq(class="form-control", placeholder="显示顺序") }}
+            </div><br/>
+            <div class="input-group col-md-6">
+                <button type="submit" class="form-control btn btn-success">保 存 修 改</button>
+            </div>
+        </form>
+    </div>
+{% endblock %}

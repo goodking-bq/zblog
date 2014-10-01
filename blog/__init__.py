@@ -22,7 +22,7 @@ oid = OpenID(blog, os.path.join(basedir, 'tmp'))
 from flask.ext.mail import Mail
 mymail = Mail(blog)
 
-from blog import views,models,Urls,admin
+from blog import views,models,Urls,admin,upload
 
 
 

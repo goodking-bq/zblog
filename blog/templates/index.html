@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block content %}
+{% block list_bar %}
     <nav class="navbar container navbar-default" role="navigation">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
@@ -24,45 +24,42 @@
                         </li>
                     {% endif %}
                 {% endfor %}
-                {% if g.user.is_authenticated() and g.user.is_admin() %}
-                    <li role="presentation"><a href="{{ url_for('category_create') }}"><span
-                            class="glyphicon glyphicon-plus"></span> 新增</a></li>
-                {% endif %}
+
             </ul>
             <form class="nav navbar-nav navbar-form navbar-right" action="{{ url_for('search') }}"
                   role="search">
                 {{ g.search_form.hidden_tag() }}
                 <div class="form-group">
-                    {{ g.search_form.search(class="form-control" ,placeholder="本站搜索") }}
+                    {{ g.search_form.search(class="form-control" ,placeholder="搜索本站") }}
                 </div>
-                <button type="submit" class="btn btn-default">搜索</button>
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span>搜索</button>
             </form>
         </div>
     </nav>
     <br/>
-
-    <div class="container center-block">
+{% endblock %}
+{% block content %}
+    <div class=" container center-block">
         <div class=" pull-left" style="width: 70%;float: left">
             {% for art in article.items %}
-                <div class="panel panel-default panel-info">
+                <div class="panel panel-default panel-info ">
                     <div class="panel-heading text-left">
-
                         <a href="{{ url_for('article_show',title=art.title) }}">{{ art.title }}</a>
                         {% if g.user.is_authenticated() and g.user.is_admin() %}
                             <div class="pull-right">
-                                <a class="btn btn-xs btn-success" data-toggle="tooltip" data-placement="right"
+                                <a class="btn btn-lg btn-round"  data-trigger="tooltip" data-content="编辑此文" data-position="e"
                                    title="点击编辑"
-                                   href="{{ url_for('article_edit',id=art.id) }}">编辑</a>
+                                   href="{{ url_for('article_edit',id=art.id) }}"><i class="glyphicon glyphicon-edit red"></i></a>
                             </div>
                         {% endif %}
                     </div>
-                    <div class="panel-body">
+                    <div class="panel-body text-left">
                         <small>{{ art.text[:125]+'...' }}</small>
                     </div>
                     <div class="panel-footer panel-default text-left">
                         标签:<a href="#"> {{ art.tag }} </a>
-                        访问次数：{{ art.view_count() }}
                         <div class="pull-right">
+                            访问次数：{{ art.view_count() }}
                             最后编辑于：<span class="badge"><small>{{ art.timestamp }}</small></span>
                         </div>
                     </div>
@@ -148,7 +145,5 @@
                 </div>
             </div>
         </div>
-    </div>
-    </div>
     </div>
 {% endblock %}

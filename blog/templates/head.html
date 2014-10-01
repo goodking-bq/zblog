@@ -3,14 +3,14 @@
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar"
                     aria-expanded="false" aria-controls="navbar">
-                <span class="sr-only">欢迎来到zblog</span>
+                <span class="sr-only">zblog</span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="#">欢迎来到zblog</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">zblog</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="{{ url_for('index') }}">主页</a></li>
+                <li class="active"><a href="{{ url_for('index') }}"><span class="glyphicon glyphicon-home"></span> 主页</a></li>
                 <li><a href="#about">关于我</a></li>
                 <li><a href="#about">留言</a></li>
             </ul>
@@ -18,7 +18,7 @@
                 {% if messages %}
                     {% for message in messages %}
                         <button id="msg" class="btn navbar-btn btn-warning">
-                            <span class="glyphicon glyphicon-comment"></span>     {{ message }}
+                            <span class="glyphicon glyphicon-comment"></span> {{ message }}
                         </button>
                     {% endfor %}
                 {% endif %}
@@ -26,15 +26,22 @@
             {% if g.user.is_authenticated() %}
                 <div class="navbar-right btn-group ">
                     {% if g.user.is_admin() %}
-                        <a href="{{ url_for('article_create') }}" class="navbar-btn btn btn-default btn-sm">新增文章</a>
+                        <a href="{{ url_for('article_create') }}" class="btn btn-link navbar-btn">
+                            <span class="glyphicon glyphicon-plus blue"></span>新增文章</a>
+                        <a href=" /admin/main" class="btn btn-link navbar-btn">
+                            <span class="glyphicon glyphicon-cog blue"></span>后台管理</a>
                     {% endif %}
-                    <a href="{{ url_for('usereditinfo') }}" class="navbar-btn btn btn-default btn-sm">个人设置</a>
-                    <a href="{{ url_for('logout') }}" class="navbar-btn btn btn-sm btn-default">登出</a>
+                    <a href="{{ url_for('usereditinfo') }}" class="btn btn-link navbar-btn">
+                        <span class="glyphicon glyphicon-wrench blue"></span>个人设置</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-link navbar-btn">
+                        <span class="glyphicon glyphicon-log-out blue"></span>登出</a>
                 </div>
             {% else %}
                 <div class="navbar-right btn-group ">
-                    <a href="{{ url_for('register') }}" class="navbar-btn btn-default btn btn-sm">注册</a>
-                    <a href="{{ url_for('login') }}" class="navbar-btn btn-default btn btn-sm">登陆</a>
+                    <a href="{{ url_for('register') }}" class="btn btn-link navbar-btn">
+                        <span class="glyphicon glyphicon-user "></span>注册</a>
+                    <a href="{{ url_for('login') }}" class="btn btn-link navbar-btn">
+                        <span class="glyphicon glyphicon-log-in "></span>登陆</a>
                 </div>
             {% endif %}
         </div>

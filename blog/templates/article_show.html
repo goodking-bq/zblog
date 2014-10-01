@@ -1,19 +1,40 @@
 {% extends "base.html" %}
-{% block content %}
+{% block ext_css %}
+    <link href="{{ url_for('static',filename='ext/syntaxhighlighter_3.0.83/styles/shCore.css') }}" rel="stylesheet"
+          type="text/css">
+    <link href="{{ url_for('static',filename='ext/syntaxhighlighter_3.0.83/styles/shCoreDefault.css') }}"
+          rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static',filename='js/kindeditor-4.1.10/plugins/code/prettify.css') }}" rel="stylesheet"
+          type="text/css">
 
-    <div class="container">
+{% endblock %}
+{% block content %}
+    <div class="container white">
         <h3 class="text-center">
             {{ article.title }}
         </h3>
         <hr/>
-        <pre>
+        <div>
             {{ article.body|safe }}
-        </pre>
+        </div>
         <p class="text-center">
-        <a href="{{ url_for('index') }}" class="btn btn-success ">返回</a>
-        <a href="{{ url_for('article_edit',id=article.id) }}" class="btn btn-success ">编辑
-        </a></p>
+            <a href="{{ url_for('index') }}" class="btn btn-success ">返回</a>
+            <a href="{{ url_for('article_edit',id=article.id) }}" class="btn btn-success ">编辑
+            </a></p>
     </div>
 {% endblock %}
-
+{% block script %}
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='ext/syntaxhighlighter_3.0.83/scripts/shCore.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='ext/syntaxhighlighter_3.0.83/scripts/shBrushPython.js') }}"></script>
+    <script type="text/javascript">
+        SyntaxHighlighter.all();
+    </script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/kindeditor-4.1.10/plugins/code/prettify.js') }}"></script>
+    <script>
+        prettyPrint();
+    </script>
+{% endblock %}
 

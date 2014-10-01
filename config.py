@@ -6,14 +6,10 @@ CSRF_ENABLED = False
 SECRET_KEY = '120225883@qq.com'
 #WTF_CSRF_ENABLED  = True
 
-
 basedir = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_DATABASE_URI ='mysql://root:zoushjde@192.168.137.2/blog'
 #SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'blog.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
-
-
-
 
 
 #邮件服务器设置
@@ -35,3 +31,9 @@ RANDOM_PASSWORD_LENGTH=5
 #全文搜索数据库
 WHOOSH_BASE = os.path.join(basedir, 'search.db') #路径
 MAX_SEARCH_RESULTS = 50 #搜索最大返回数
+
+UPLOAD_FOLDER = os.path.join(basedir, 'uploads')
+ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'rar', 'zip', 'tar'])
+MAX_CONTENT_LENGTH = 1 * 1024 * 1024
+#UPLOADED_FILES_DEST = os.path.join(basedir, 'uploads')
+#UPLOADED_FILES_ALLOW = set(['rar','zip','txt','jpg','pdf', 'png', 'jpg', 'jpeg', 'gif'])

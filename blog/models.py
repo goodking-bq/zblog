@@ -104,18 +104,21 @@ class Article(db.Model):
     text = db.Column(db.String(4000))
     tag = db.Column(db.String(20))
     post_date = db.Column(db.DateTime)
+    is_open = db.Column(db.Integer(1))
     timestamp = db.Column(db.DateTime, default=datetime.now())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     months = db.Column(db.String(7),default=str(datetime.now())[:7])
 
-    def __init__(self, title, body, text, timestamp, user_id, category_id):
+    def __init__(self, title, body, text, timestamp, user_id, category_id,tag,is_open):
         self.title = title
         self.body = body
         self.text = text
         self.timestamp = timestamp
         self.user_id = user_id
         self.category_id = category_id
+        self.tag =tag
+        self.is_open = is_open
 
 
     def __repr__(self):
@@ -125,10 +128,8 @@ class Article(db.Model):
         return count
     @classmethod
     def find_by_id(self, id):
-        from blog.extend.Ubb2Html import Ubb2Html
 
         art = self.query.filter_by(id=id).first()
-        art.body = Ubb2Html(art.body)
         return art
 
     @classmethod
@@ -137,28 +138,28 @@ class Article(db.Model):
         return art
 
     @classmethod
-    def article_per_page(cls, name, month, page):
+    def article_per_page(cls, name, month, page,pagenum=ARTICLES_PER_PAGE):
         if name == 'all' and month == 'all':
-            art = Article.query.order_by(Article.timestamp.desc())
-            return art.paginate(page, ARTICLES_PER_PAGE, False)
+            art = Article.query.filter_by(is_open=1).order_by(Article.timestamp.desc())
+            return art.paginate(page, pagenum, False)
         elif month == 'all' and name <> 'all':
             cg = Category.find_by_name(name)
             if cg:
-                art = Article.query.filter_by(category_id=cg.id).order_by(Article.timestamp.desc())
-                return art.paginate(page, ARTICLES_PER_PAGE, False)
+                art = Article.query.filter(Article.category_id==cg.id, Article.is_open==1).order_by(Article.timestamp.desc())
+                return art.paginate(page, pagenum, False)
         elif month <> 'all' and name == 'all':
-            art = Article.query.filter_by(months=month).order_by(Article.timestamp.desc())
-            return art.paginate(page, ARTICLES_PER_PAGE, False)
+            art = Article.query.filter(Article.months==month, Article.is_open==1).order_by(Article.timestamp.desc())
+            return art.paginate(page, pagenum, False)
         elif month <> 'all' and name <> 'all':
             cg = Category.find_by_name(name)
             if cg:
-                art = Article.query.filter(Article.months == month, Article.category_id == cg.id).order_by(
+                art = Article.query.filter(Article.months == month, Article.category_id == cg.id,Article.is_open==1).order_by(
                     Article.timestamp.desc())
-                return art.paginate(page, ARTICLES_PER_PAGE, False)
+                return art.paginate(page, pagenum, False)
 
     @classmethod
     def count_by_month(cls):
-        month_count = db.session.query(Article.months, db.func.count('*').label('num')).group_by(Article.months).all()
+        month_count = db.session.query(Article.months, db.func.count('*').label('num')).group_by(Article.months).order_by(Article.months.desc())
         return month_count
 
     @classmethod
@@ -177,6 +178,7 @@ class Category(db.Model):
     createdate = db.Column(db.DateTime)
     articles = db.relationship('Article', backref='category', lazy='dynamic')
     is_use = db.Column(db.Integer(1),default=IS_USE)
+    seq = db.Column(db.Integer)
 
     def __repr__(self):
         return '<Category %r>' % (self.name)
@@ -185,6 +187,35 @@ class Category(db.Model):
     def find_by_name(cls, name):
         return Category.query.filter(Category.name == name,Category.is_use == 1).first()
 
+    @classmethod
+    def default_seq(cls):
+        return  db.session.query(db.func.max(Category.seq).label('seq_max')).first().seq_max+1
+
+class Uploads(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    url = db.Column(db.String(50))
+    file_type = db.Column(db.String(4))
+    upload_date = db.Column(db.DateTime,default=datetime.now())
+    upload_user = db.Column(db.Integer)
+
+class Link(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(20))
+    url = db.Column(db.String(200))
+    type = db.Column(db.String(20))
+    is_use = db.Column(db.Integer(1),default=1)
+    seq = db.Column(db.Integer(1))
+    icon = db.Column(db.String(50))
+
+    @classmethod
+    def list_bar(cls):
+        list_bar = Link.query.filter(Link.type == 'list_bar',Link.is_use==1).order_by(Link.seq)
+        return  list_bar
+class settings(db.Model):
+    id = db.Column(db.Integer,primary_key=True)
+    name = db.Column(db.String(20))
+    type = db.Column(db.String(20))
+    value = db.Column(db.String(200))
 
 class Visit_log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -227,6 +258,7 @@ class Login_log(db.Model):
     def count_all(cls):
         count = db.session.query(db.func.count(Login_log.id).label('login_all')).first().login_all
         return count
+
 
 
 class Tj(db.Model):
