@@ -1,6 +1,7 @@
 <html lang="zh">
 <link href="{{ url_for('static',filename='css/bootstrap/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
-<link href="{{ url_for('static',filename='css/bootstrap/bootstrap-responsive.min.css') }}" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static',filename='css/bootstrap/bootstrap-responsive.min.css') }}" rel="stylesheet"
+      type="text/css">
 <link href="{{ url_for('static',filename='css/mycss.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ url_for('static',filename='css/bootstrap/bootstrap-datatables.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ url_for('static',filename='ext/bootstrap-sco/css/scojs.css') }}" rel="stylesheet" type="text/css">
@@ -35,21 +36,17 @@
                     <div class="nav-sm nav nav-stacked">
                     </div>
                     <ul class="  nav nav-pills nav-stacked main-menu" role="tablist">
-                        <li class="nav-header bg-success"><span><i class="glyphicon glyphicon-tree-conifer"></i>  菜单</span></li>
+                        <li class="nav-header bg-success"><span><i
+                                class="glyphicon glyphicon-tree-conifer"></i>  菜单</span></li>
                         {% for b in g.list_bar %}
                             {% if request.url.find(b.url)>=0 %}
-                                <li class="active ajax-link"><a href="{{b.url }}"><i class="{{ b.icon }}"></i>  {{ b.name }}</a></li>
+                                <li class="active ajax-link"><a href="{{ b.url }}"><i
+                                        class="{{ b.icon }}"></i> {{ b.name }}</a></li>
                             {% else %}
-                                <li><a class="ajax-link" href="{{ b.url }}"><i class="{{ b.icon }}"></i>  {{ b.name }}</a></li>
+                                <li><a class="ajax-link" href="{{ b.url }}"><i class="{{ b.icon }}"></i> {{ b.name }}
+                                </a></li>
                             {% endif %}
                         {% endfor %}
-                        <li class="accordion" >
-                            <a href="#"><i class="glyphicon glyphicon-plus"></i><span> Accordion Menu</span></a>
-                            <ul class="nav nav-pills nav-stacked">
-                                <li><a href="#">Child Menu 1</a></li>
-                                <li><a href="#">Child Menu 2</a></li>
-                            </ul>
-                        </li>
                     </ul>
                 </div>
             </div>

@@ -2,6 +2,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>File Not Found</h1>
-<p><a href="{{url_for('index')}}">Back</a></p>
+    <div class="container center" style="height: 800">
+        <h1 class="red"><span class="glyphicon glyphicon-warning-sign"></span> 兄弟，你跑错页面了~~~~~</h1>
+
+        <p><a href="{{ url_for('index') }}" class="btn btn-primary btn-lg"><i
+                class="glyphicon glyphicon-circle-arrow-left"></i> 返回主页</a></p>
+    </div>
 {% endblock %}

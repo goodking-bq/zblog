@@ -158,6 +158,11 @@ class Article(db.Model):
                 return art.paginate(page, pagenum, False)
 
     @classmethod
+    def article_per_page_all(cls, page, pagenum=ARTICLES_PER_PAGE):
+        art = Article.query.all().order_by(Article.timestamp.desc())
+        return art.paginate(page, pagenum, False)
+
+    @classmethod
     def count_by_month(cls):
         month_count = db.session.query(Article.months, db.func.count('*').label('num')).group_by(Article.months).order_by(Article.months.desc())
         return month_count
@@ -166,6 +171,7 @@ class Article(db.Model):
     def count_all(cls):
         count = db.session.query(db.func.count(Article.id).label('article_count')).first().article_count
         return count
+
 
 whooshalchemy.whoosh_index(blog, Article)
 
@@ -198,24 +204,22 @@ class Uploads(db.Model):
     upload_date = db.Column(db.DateTime,default=datetime.now())
     upload_user = db.Column(db.Integer)
 
-class Link(db.Model):
+
+class Settings(db.Model):
     id = db.Column(db.Integer,primary_key=True)
     name = db.Column(db.String(20))
     url = db.Column(db.String(200))
     type = db.Column(db.String(20))
     is_use = db.Column(db.Integer(1),default=1)
-    seq = db.Column(db.Integer(1))
+    seq = db.Column(db.Integer())
     icon = db.Column(db.String(50))
 
     @classmethod
-    def list_bar(cls):
-        list_bar = Link.query.filter(Link.type == 'list_bar',Link.is_use==1).order_by(Link.seq)
+    def admin_second_bar(cls):
+        list_bar = Settings.query.filter(Settings.type == 'admin_second_bar', Settings.is_use == 1).order_by(
+            Settings.seq)
         return  list_bar
-class settings(db.Model):
-    id = db.Column(db.Integer,primary_key=True)
-    name = db.Column(db.String(20))
-    type = db.Column(db.String(20))
-    value = db.Column(db.String(200))
+
 
 class Visit_log(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -32,7 +32,8 @@
                 <div class="form-group">
                     {{ g.search_form.search(class="form-control" ,placeholder="搜索本站") }}
                 </div>
-                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span>搜索</button>
+                <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span>搜索
+                </button>
             </form>
         </div>
     </nav>
@@ -47,9 +48,11 @@
                         <a href="{{ url_for('article_show',title=art.title) }}">{{ art.title }}</a>
                         {% if g.user.is_authenticated() and g.user.is_admin() %}
                             <div class="pull-right">
-                                <a class="btn btn-lg btn-round"  data-trigger="tooltip" data-content="编辑此文" data-position="e"
+                                <a class="btn btn-lg btn-round" data-trigger="tooltip" data-content="编辑此文"
+                                   data-position="e"
                                    title="点击编辑"
-                                   href="{{ url_for('article_edit',id=art.id) }}"><i class="glyphicon glyphicon-edit red"></i></a>
+                                   href="{{ url_for('article_edit',id=art.id) }}"><i
+                                        class="glyphicon glyphicon-edit red"></i></a>
                             </div>
                         {% endif %}
                     </div>
@@ -58,6 +61,7 @@
                     </div>
                     <div class="panel-footer panel-default text-left">
                         标签:<a href="#"> {{ art.tag }} </a>
+
                         <div class="pull-right">
                             访问次数：{{ art.view_count() }}
                             最后编辑于：<span class="badge"><small>{{ art.timestamp }}</small></span>
@@ -119,9 +123,9 @@
                 <div class="col-md-12">
                     <div class="panel panel-success">
                         <div class="panel-heading">时间线：</div>
-                        <div class="panel-body">
+                        <div class="panel-body text-left">
                             {% for ct in count %}
-                                <span class="glyphicon glyphicon-arrow-right"></span>&nbsp
+                                <span class="glyphicon glyphicon-circle-arrow-right"></span>&nbsp
                                 <a href="{{ url_for('index', categoryname=categoryname,month=ct.months,page = 1) }}">
                                     {{ ct.months }}&nbsp&nbsp <span class="badge"> {{ ct.num }}</span>
                                 </a><br/>
@@ -129,18 +133,19 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="col-md-12">
-                <div class="panel panel-default">
-                    <div class="panel-heading">本站统计：</div>
-                    <div class="panel-body">
-                        日访问量：{{ tj.visit_day }}<br/>
-                        总访问量：{{ tj.visit_all }}<br/>
-                        文章总数：{{ tj.article_all }}<br/>
-                        用户数量：{{ tj.user_all }}<br/>
-                        登陆次数：{{ tj.login_all }}<br/>
-                        总访问量：{{ tj.visit_all }}<br/>
-                        当前时间：{{ tj.nowtimes }}<br/>
+
+                <div class="col-md-12 ">
+                    <div class="panel panel-default">
+                        <div class="panel-heading">本站统计：</div>
+                        <div class="panel-body text-left">
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 日访问量：{{ tj.visit_day }}<br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 总访问量：{{ tj.visit_all }}<br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 文章总数：{{ tj.article_all }}<br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 用户数量：{{ tj.user_all }}<br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 登陆次数：{{ tj.login_all }}<br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 总访问量：{{ tj.visit_all }}<br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 当前时间：{{ tj.nowtimes }}<br/>
+                        </div>
                     </div>
                 </div>
             </div>

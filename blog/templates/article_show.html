@@ -17,10 +17,19 @@
         <div>
             {{ article.body|safe }}
         </div>
-        <p class="text-center">
-            <a href="{{ url_for('index') }}" class="btn btn-success ">返回</a>
-            <a href="{{ url_for('article_edit',id=article.id) }}" class="btn btn-success ">编辑
-            </a></p>
+        <!-- UY BEGIN -->
+        <hr/>
+        <div id="uyan_frame" style="width: 65%"></div>
+        <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1972001"></script>
+        <!-- UY END -->
+        <p class="text-left">
+            <a href="{{ url_for('index') }}" class="btn btn-success ">
+                <span class="glyphicon glyphicon-circle-arrow-left"></span>回到主页</a>
+            {% if g.user.is_authenticated() and g.user.is_admin() %}
+                <a href="{{ url_for('article_edit',id=article.id) }}" class="btn btn-success ">编辑
+            {% endif %}
+            </a>
+        </p>
     </div>
 {% endblock %}
 {% block script %}

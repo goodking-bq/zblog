@@ -95,3 +95,11 @@ def article():
     return render_template('admin/article.html', article=article)
 
 
+def articledelete(id):
+    article = Article.query.get(int(id))
+    db.session.delete(article)
+    db.session.commit()
+    flash(u'删除成功！')
+    return redirect(url_for('article'))
+
+
