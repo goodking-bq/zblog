@@ -6,13 +6,18 @@
                 <span class="sr-only">zblog</span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ url_for('index') }}">zblog</a>
+            <a class="navbar-brand" href="{{ url_for('index') }}">{{ g.blog_name.name }}</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
             <ul class="nav navbar-nav">
-                <li class="active"><a href="{{ url_for('index') }}"><span class="glyphicon glyphicon-home"></span> 主页</a></li>
-                <li><a href="#about">关于我</a></li>
-                <li><a href="#about">留言</a></li>
+                {% for f in g.first_bar %}
+                    {% if request.url.find(f.url)>=0 %}
+                        <li class="active"><a href="{{ f.url }}"><span class="{{ f.icon }}"></span> {{ f.name }}</a>
+                        </li>
+                    {% else %}
+                        <li><a href="{{ f.url }}"><span class="{{ f.icon }}"></span> {{ f.name }}</a></li>
+                    {% endif %}
+                {% endfor %}
             </ul>
             {% with messages = get_flashed_messages() %}
                 {% if messages %}

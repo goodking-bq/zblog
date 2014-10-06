@@ -1,7 +1,7 @@
 <html lang="zh">
 <link href="{{ url_for('static',filename='css/bootstrap/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
-<link href="{{ url_for('static',filename='css/bootstrap/bootstrap-responsive.min.css') }}" rel="stylesheet" type="text/css">
-<link href="{{ url_for('static',filename='css/mycss.css') }}" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static',filename='css/bootstrap/bootstrap-responsive.min.css') }}" rel="stylesheet"
+      type="text/css">
 <link href="{{ url_for('static',filename='css/bootstrap/bootstrap-datatables.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ url_for('static',filename='ext/bootstrap-sco/css/scojs.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ url_for('static',filename='ext/bootstrap-sco/css/sco.message.css') }}" rel="stylesheet" type="text/css">
@@ -23,7 +23,7 @@
 </head>
 <body>
 {% block head %}
-{% include 'head.html' %}
+    {% include 'head.html' %}
 {% endblock %}
 {% block list_bar %}
 {% endblock %}

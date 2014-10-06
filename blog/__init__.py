@@ -1,28 +1,29 @@
 import os
-from flask import Flask 
+from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
 from flask.ext.admin import Admin
 from flask.ext.openid import OpenID
-from config import basedir,ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
+from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
 
 
 blog = Flask(__name__)
-blog.config.from_object('config') 
+blog.config.from_object('config')
 
-db=SQLAlchemy(blog)
+db = SQLAlchemy(blog)
 
 lm = LoginManager()
 lm.init_app(blog)
-lm.login_view = 'login'
+lm.login_view = 'views.login'
 
 oid = OpenID(blog, os.path.join(basedir, 'tmp'))
 
-#mail
+# mail
 from flask.ext.mail import Mail
+
 mymail = Mail(blog)
 
-from blog import views,models,Urls,admin,upload
+from blog import views, models, Urls, admin, upload
 
 
 

@@ -52,9 +52,11 @@
             <button type="image" onclick="sumarticle()" class="btn btn-success">
                 <span class="glyphicon glyphicon-ok-sign"></span> 提交
             </button>
-            <a href="{{ url_for('article_show',title=form.title.data) }}" class="btn btn-success">
-                <span class="glyphicon glyphicon-eye-open"></span> 查看
-            </a>
+            {% if form.title.data %}
+                <a href="{{ url_for('article_show',title=form.title.data) }}" class="btn btn-success">
+                    <span class="glyphicon glyphicon-eye-open"></span> 查看
+                </a>
+            {% endif %}
         </form>
     </div>
     <br/>

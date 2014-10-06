@@ -73,6 +73,8 @@ def before_request():
     g.search_form = SearchForm()
     g.user = current_user
     g.tj = Tj.tongji()
+    g.blog_name = Settings.blog_name()
+    g.first_bar = Settings.first_bar()
     if g.user.is_authenticated():
         g.user.last_seen = datetime.now()
         db.session.add(g.user)
@@ -85,21 +87,6 @@ def before_request():
                         visiturl=request.base_url)
         db.session.add(log)
         db.session.commit()
-
-
-@login_required
-def user(nicename):
-    user = User.query.filter_by(nicename=nicename).first()
-    if user == None:
-        flash('User ' + nicename + ' not found.')
-        return redirect(url_for('index'))
-    posts = [
-        {'author': user, 'body': 'Test post #1'},
-        {'author': user, 'body': 'Test post #2'}
-    ]
-    return render_template('user/user.html',
-                           user=user,
-                           posts=posts)
 
 
 @login_required
@@ -254,3 +241,10 @@ def search_result(search, page=1):
                            article=result,
                            count=count)
 
+
+def blog_msg():
+    return render_template('blog_msg.html')
+
+
+def blog_about():
+    return render_template('blog_about.html')

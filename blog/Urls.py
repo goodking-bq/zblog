@@ -6,7 +6,6 @@ from blog.extend.UrlsHelper import url
 
 url('/login', 'views.login',methods = ['GET', 'POST'])
 url('/logout','views.logout')
-url('/user/<nickname>','views.user')
 url('/usereditinfo/','views.usereditinfo',methods = ['GET', 'POST'])
 url('/userchangepwd/','views.userchangepwd',methods = ['GET', 'POST'])
 url('/register','views.register', methods = ['GET', 'POST'])
@@ -17,6 +16,8 @@ url('/search','views.search',methods = ['GET', 'POST'])
 url('/search_result/<string:search>','views.search_result')
 url('/upload','upload.upload',methods = ['GET', 'POST'])
 url('/uploads/<filename>','upload.uploaded_file')
+url('/blog_msg', 'views.blog_msg')
+url('/about', 'views.blog_about')
 
 
 ############# admin ###############
