@@ -16,9 +16,9 @@
     <meta name="uyan_auth" content="a8ec133338"/>
     <link rel="shortcut icon" type="image/ico" href="{{ url_for('static',filename='favicon.ico') }}">
     {% if title %}
-        <title>{{ title }}-我的博客</title>
+        <title>{{ title }}---{{ g.info.blog_name }}</title>
     {% else %}
-        <title>我的博客</title>
+        <title>{{ g.info.blog_name }}</title>
     {% endif %}
 </head>
 <body>

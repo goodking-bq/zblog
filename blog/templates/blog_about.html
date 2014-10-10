@@ -1,13 +1,105 @@
 {% extends "base.html" %}
 {% block content %}
     <div class="container">
-        <blockquote><h1>生有尽，而学无涯！</h1></blockquote>
-        <p>&nbsp;&nbsp;&nbsp;&nbsp;本人做运维有段时间了，接触到的东西多而杂：从
-            <i class="h4"><label class="label label-default h3">WINDOWS</label></i>到
-            <i class="h4"><label class="label label-default h3">LINUX</label></i>,从
-            <i class="h4"><label class="label label-default h3">Apache,Tomcat等各种中间件环境配置，优化</label></i>到
-            <i class="h4"><label class="label label-default h3">Oracle,sqlserver等各种数据库操作，优化.</label></i>，还有各种
-            监控工具等。会的会的多，精力分散的也多。所以我一直有个想法，干脆去学一门开发语言算了。直到接触到了PYTHON。我就下定决心去学它。
-            这个博客就当是我的开山作了。没搞过开发，代码肯定写的不怎么样。但还是附上GITHUB吧：</p>
+        <blockquote class="text-center"><h1><strong>生有尽，而学无涯！</strong></h1></blockquote>
+        <h3>在我们生活欺骗了你</h3>
+
+        <h3>不要悲伤</h3>
+
+        <h3>不要心急</h3>
+
+        <h3>你需要的是看书~</h3>
+
+        <p class="h4 text-right">------------ 我说 ----------</p>
+        <hr/>
+        <h4>很多搞技术的，都希望自己的经验又一个堆积的地方，那就是我们的 BLOG </h4>
+        <h4>此程序正是我自敲的 BLOG 了</h4>
+        <h4>第一次敲代码，肯定写的不怎么样。附上GITHUB,供大家参考！
+            <a href="https://github.com/goodking-bq/zblog.git">
+                <i class="glyphicon glyphicon-hand-right"> 猛点进入</i></a>
+        </h4>
+
+        <h4>此程序</h4>
+        <h4>前端:
+            <strong>
+                <a href="http://www.bootcss.com/">
+                    Bootstrap
+                </a>
+            </strong>
+            以及 Bootstrap相关一些插件
+        </h4>
+        <h4>后端:
+            <strong>
+                <a href="http://flask.pocoo.org/">
+                    FLASK
+                </a>
+            </strong>||
+            <strong>
+                <a href="http://pythonhosted.org/Flask-SQLAlchemy">
+                    Flask-SQLAlchemy
+                </a>
+            </strong>||
+            <strong>
+                <a href="http://flask-wtf.readthedocs.org/">
+                    Flask-WTF
+                </a>
+            </strong>||
+            <strong>
+                <a href="http://flask-login.readthedocs.org/en/latest/">
+                    Flask-Login
+                </a>
+            </strong>||
+            <strong>
+                <a href="https://github.com/cyberdelia/flask-mysql">
+                    Flask-Mysql
+                </a>
+            </strong>
+        </h4>
+        <h4>数据库：<strong>
+            <a href="http://www.mysql.com/">
+                Mysql
+            </a>
+        </strong>
+        </h4>
+        <h4>评论系统：
+            <strong>
+                <a href="http://www.uyan.cc/">
+                    有言
+                </a>
+            </strong>
+            <i class="h5">ps:后期会考虑自己写评论，自己写的才是完全可控的。好吧，我有强迫症。</i>
+        </h4>
+        <h4>干了这么就运维，有点想搞开发了……</h4>
+
+        <h2>YES,I CAN!</h2>
+        <hr/>
+        <div style="width: 80%;align-content: center;align-items: center">
+            <canvas id="canvas" height="450" width="1000"></canvas>
+        </div>
     </div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap/Chart.js') }}"></script>
+    <script>
+        var barChartData = {
+            labels: ["FLASK", "MYSQL", "FLASK-WTF", "Flask-SQLAlchemy", "Bootstrap", "Flask-Login", "LINUX"],
+            datasets: [
+                {
+                    fillColor: "rgba(10,187,205,0.5)",
+                    strokeColor: "rgba(10,187,205,0.8)",
+                    highlightFill: "rgba(10,187,205,0.75)",
+                    highlightStroke: "rgba(10,187,205,1)",
+                    data: [70, 30, 70, 60, 40, 30, 50]
+                }
+            ]
+
+        }
+        window.onload = function () {
+            var ctx = document.getElementById("canvas").getContext("2d");
+            window.myBar = new Chart(ctx).Bar(barChartData, {
+                responsive: false
+            });
+        }
+    </script>
+
 {% endblock %}

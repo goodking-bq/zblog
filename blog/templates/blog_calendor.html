@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block ext_css %}
+    <link href="{{ url_for('static',filename='css/jquery-ui.min.css') }}"
+          rel="stylesheet" type="text/css">
+    <link href="{{ url_for('static',filename='ext/fullcalendar-2.1.1/fullcalendar.css') }}" rel="stylesheet"
+          type="text/css">
+    <link href="{{ url_for('static',filename='ext/fullcalendar-2.1.1/fullcalendar.print.css') }}" rel="stylesheet"
+          type="text/css" media='print'>
+{% endblock %}
+{% block content %}
+    <div id='calendar' style="max-width: 80%;margin: 0 auto;max-height: 100%"></div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/jquery/jquery-2.1.1.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='ext/fullcalendar-2.1.1/lib/moment.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='ext/fullcalendar-2.1.1/fullcalendar.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='ext/fullcalendar-2.1.1/lang/zh-cn.js') }}"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            $('#calendar').fullCalendar({
+                theme: true,
+                header: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'month,agendaWeek,agendaDay'
+                },
+                lang: 'Zh-cn',
+                editable: true,
+                eventLimit: true, // allow "more" link when too many events
+                aspectRatio: 1.6, //宽与高的比值
+                defaultView: 'month',//默认显示
+                weekNumbers: true,
+                events: '/calendar_json',
+                agendaDay: true,
+                buttonText: {
+                    prev: '上月',
+                    next: '下月',
+                    prevYear: '去年',
+                    nextYear: '明年',
+                    today: '今天',
+                    month: '月',
+                    week: '周',
+                    day: '日'
+                }
+            });
+
+        });
+    </script>
+{% endblock %}

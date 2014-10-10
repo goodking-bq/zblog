@@ -14,7 +14,7 @@
         <div class="collapse navbar-collapse">
             <ul class="nav nav-tabs navbar-nav" role="tablist" id="ctgtab">
                 {% for c in category %}
-                    {% if request.url.find(c.name)>=0 %}
+                    {% if request.url.find(c.name+'/')>=0 %}
                         <li role="presentation" class="active">
                             <a href="{{ url_for('index',categoryname=c.name,month=month,page=1) }}">{{ c.name }}</a>
                         </li>
@@ -26,7 +26,7 @@
                 {% endfor %}
 
             </ul>
-            <form class="nav navbar-nav navbar-form navbar-right" action="{{ url_for('search') }}"
+            <form class="nav navbar-nav navbar-form navbar-right" action="{{ url_for('search') }}" method="POST"
                   role="search">
                 {{ g.search_form.hidden_tag() }}
                 <div class="form-group">
@@ -106,7 +106,6 @@
                                 <a class="btn btn-sm btn-default" href="{{ url_for('usereditinfo') }}"
                                    title="点击编辑个人信息"> {{ g.user.nicename }}
                                 </a>
-
                             </div>
                             <div class="panel-body">
                                 <div class="panel-footer"
@@ -115,7 +114,6 @@
                                 <div class="panel-footer"
                                      style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                                     上次离开：{{ g.user.last_seen }}</div>
-
                             </div>
                         </div>
                     </div>
@@ -124,7 +122,7 @@
                     <div class="panel panel-success">
                         <div class="panel-heading">时间线：</div>
                         <div class="panel-body text-left">
-                            {% for ct in count %}
+                            {% for ct in g.count %}
                                 <span class="glyphicon glyphicon-circle-arrow-right"></span>&nbsp
                                 <a href="{{ url_for('index', categoryname=categoryname,month=ct.months,page = 1) }}">
                                     {{ ct.months }}&nbsp&nbsp <span class="badge"> {{ ct.num }}</span>
@@ -133,18 +131,35 @@
                         </div>
                     </div>
                 </div>
+                <div class="col-md-12 " style="max-height: 100px">
+                    <!-- UYAN NEW COMMENT BEGIN -->
+                    <div id="uyan_newcmt_unit"></div>
+                    <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1972001"></script>
+                    <!-- 如果已经过加载此行JS，即可不用重复加载 -->
+                    <!-- UYAN NEW COMMENT END -->
+                </div>
+                <br/>
 
                 <div class="col-md-12 ">
                     <div class="panel panel-default">
                         <div class="panel-heading">本站统计：</div>
                         <div class="panel-body text-left">
-                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 日访问量：{{ tj.visit_day }}<br/>
-                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 总访问量：{{ tj.visit_all }}<br/>
-                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 文章总数：{{ tj.article_all }}<br/>
-                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 用户数量：{{ tj.user_all }}<br/>
-                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 登陆次数：{{ tj.login_all }}<br/>
-                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 总访问量：{{ tj.visit_all }}<br/>
-                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 当前时间：{{ tj.nowtimes }}<br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 日访问量：{{ g.info.visit_day }}
+                            <br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 总访问量：{{ g.info.visit_all }}
+                            <br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 文章总数：{{ g.info.article_all }}
+                            <br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 本月新增：{{ g.info.article_month }}
+                            <br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 用户数量：{{ g.info.user_all }}<br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 登陆次数：{{ g.info.login_all }}
+                            <br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 总访问量：{{ g.info.visit_all }}
+                            <br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 恶意访问：{{ g.info.count_attack }}
+                            <br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 当前时间：{{ g.info.nowtimes }}<br/>
                         </div>
                     </div>
                 </div>

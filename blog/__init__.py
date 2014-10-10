@@ -1,9 +1,10 @@
+#!/usr/bin/python
+# -*- coding:utf-8 -*-
 import os
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
-from flask.ext.admin import Admin
-from flask.ext.openid import OpenID
+# from flask.ext.openid import OpenID
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD
 
 
@@ -14,9 +15,10 @@ db = SQLAlchemy(blog)
 
 lm = LoginManager()
 lm.init_app(blog)
-lm.login_view = 'views.login'
+lm.login_view = 'login'
+lm.login_message = u"请先登录"
 
-oid = OpenID(blog, os.path.join(basedir, 'tmp'))
+#oid = OpenID(blog, os.path.join(basedir, 'tmp'))
 
 # mail
 from flask.ext.mail import Mail

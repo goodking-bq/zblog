@@ -28,7 +28,7 @@
     <div id="myTabContent" class="tab-content">
         <div class="  container-fluid  in active" id="personinfo">
             <form class="form-signin form-group" action="" method="post" role="from">
-                {{ form.hidden_tag() }}
+                {{ form.csrf_token }}
                 <div class="input-group form-group has-success has-feedback">
                     <label class="control-label " for="emailipt">昵 称：</label>
                     {{ form.nicename(size=50,class="form-control") }}

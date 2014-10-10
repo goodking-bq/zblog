@@ -1,7 +1,7 @@
 # -*- coding:utf-8 -*-
 from flask.ext.wtf import Form
 from wtforms import TextField, BooleanField, TextAreaField, PasswordField, SelectField
-from wtforms.validators import Required, Length, Email, EqualTo
+from wtforms.validators import Required, Length, Email, EqualTo, URL
 from flask_wtf.file import  FileRequired,FileAllowed,FileField
 from blog.models import User, Article, Category
 
@@ -15,13 +15,21 @@ class LoginForm(Form):
 class UserEditForm(Form):
     nicename = TextField('nicename')
     info = TextAreaField('info', validators=[Length(min=0, max=140)])
-    url = TextField('url', validators=[Length(min=0, max=100)])
-    role = SelectField('role',choices=[(0,u'普通用户'),(1,u'管理员')],coerce=int)
-    is_locked = SelectField('is_locked',choices=[(0,u'不锁定'),(1,u'锁定')],coerce=int)
+    url = TextField('url', validators=[Length(min=0, max=100), URL])
+    # role = SelectField('role',choices=[(0,u'普通用户'),(1,u'管理员')],coerce=int)
+    #is_locked = SelectField('is_locked',choices=[(0,u'不锁定'),(1,u'锁定')],coerce=int)
 
 class UserChangePwdForm(Form):
     password = PasswordField('New Password', [Required(), EqualTo('confirm', message=u'输入不匹配')])
     confirm = PasswordField('Repeat Password')
+
+
+class AdminUserEditForm(Form):
+    nicename = TextField('nicename')
+    info = TextAreaField('info', validators=[Length(min=0, max=140)])
+    url = TextField('url', validators=[Length(min=0, max=100)])
+    role = SelectField('role', choices=[(0, u'普通用户'), (1, u'管理员')], coerce=int)
+    is_locked = SelectField('is_locked', choices=[(0, u'不锁定'), (1, u'锁定')], coerce=int)
 
 class RegisterForm(Form):
     email = TextField('Email Address', [Email(u'请输入正确的Email地址！')])

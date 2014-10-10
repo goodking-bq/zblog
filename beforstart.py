@@ -16,10 +16,10 @@ setup(
         'Flask-Login',
         'Flask-MySQL',
         'Flask-WhooshAlchemy',
-        'Flask-WTF'
-        #'sqlalchemy',
+        'Flask-mail',
+        # 'sqlalchemy',
         #'Werkzeug',
-       # 'WTForms'
+        # 'WTForms'
     ]
 
 )

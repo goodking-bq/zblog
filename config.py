@@ -1,13 +1,16 @@
 # -*- coding:utf-8 -*-
 
 import os
+import datetime
 
 CSRF_ENABLED = False
 SECRET_KEY = '120225883@qq.com'
-#WTF_CSRF_ENABLED  = True
+REMEMBER_COOKIE_DURATION = datetime.timedelta(seconds=30)
+PERMANENT_SESSION_LIFETIME = datetime.timedelta(minutes=5)
+# WTF_CSRF_ENABLED  = True
 
 basedir = os.path.abspath(os.path.dirname(__file__))
-SQLALCHEMY_DATABASE_URI ='mysql://root:zoushjde@192.168.137.2/blog'
+SQLALCHEMY_DATABASE_URI = 'mysql://root:zoushjde@192.168.137.2/blog'
 #SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'blog.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
@@ -25,12 +28,12 @@ MAIL_PASSWORD = 'z120225883'
 ADMINS = ['email@zousj.cn']
 
 #每页显示的文章数
-ARTICLES_PER_PAGE = 5
+ARTICLES_PER_PAGE = 10
 #随机密码长度
-RANDOM_PASSWORD_LENGTH=5
+RANDOM_PASSWORD_LENGTH = 5
 #全文搜索数据库
-WHOOSH_BASE = os.path.join(basedir, 'search.db') #路径
-MAX_SEARCH_RESULTS = 50 #搜索最大返回数
+WHOOSH_BASE = os.path.join(basedir, 'search.db')  #路径
+MAX_SEARCH_RESULTS = 50  #搜索最大返回数
 
 UPLOAD_FOLDER = os.path.join(basedir, 'uploads')
 ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'rar', 'zip', 'tar'])

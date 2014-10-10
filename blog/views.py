@@ -7,10 +7,10 @@ from forms import LoginForm, UserEditForm, \
     ArticleEditForm, CategoryForm, SearchForm, UserChangePwdForm, \
     UploadFileForm
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from models import User, Settings, ROLE_USER, User_LOCKED, IS_USE, Article, Category, Visit_log, Tj, Login_log
+from models import User, Settings, ROLE_USER, User_LOCKED, IS_USE, Article, Category, Visit_log, Blog_info, Login_log
 from datetime import datetime
+import json
 # from flask import copy_current_request_context
-from blog.extend.Ubb2Html import Ubb2Html
 
 
 @blog.route('/', methods=['GET', 'POST'])
@@ -21,16 +21,12 @@ def index(categoryname='all', month='all', page=1):
     category = Category.query.filter_by(is_use=1).order_by(Category.seq)
     article = Article.article_per_page(categoryname, month, page)
     count = Article.count_by_month()
-    tj = Tj.tongji()
     return render_template("index.html",
                            title='Home',
-                           user=user,
                            article=article,
                            category=category,
                            categoryname=categoryname,
-                           month=month,
-                           count=count,
-                           tj=tj)
+                           month=month)
 
 
 @lm.user_loader
@@ -57,7 +53,7 @@ def login():
             flash(u'用户名或密码错误')
             return redirect(url_for('login'))
     return render_template('login.html',
-                           title=u'登陆',
+                           title=u'请登陆',
                            form=form)
 
 
@@ -72,9 +68,10 @@ def logout():
 def before_request():
     g.search_form = SearchForm()
     g.user = current_user
-    g.tj = Tj.tongji()
+    g.info = Blog_info.info()
     g.blog_name = Settings.blog_name()
     g.first_bar = Settings.first_bar()
+    g.count = Article.count_by_month()
     if g.user.is_authenticated():
         g.user.last_seen = datetime.now()
         db.session.add(g.user)
@@ -105,6 +102,7 @@ def usereditinfo():
         form.info.data = g.user.info
         form.url.data = g.user.url
     return render_template('user/usereditinfo.html',
+                           title=u'修改用户信息',
                            form=form)
 
 
@@ -120,6 +118,7 @@ def userchangepwd():
         flash(u'密码修改成功！')
         return redirect(url_for('usereditinfo'))
     return render_template('user/userchangepwd.html',
+                           title=u'修改密码',
                            form=form)
 
 
@@ -162,6 +161,7 @@ def register():
 def article_show(title):
     article = Article.find_by_name(title)
     return render_template('article_show.html',
+                           title=title,
                            article=article)
 
 
@@ -189,6 +189,7 @@ def article_create():
             flash(u'文章已创建！')
             return redirect(url_for('index'))
     return render_template('article_create.html',
+                           title=u'创建文章',
                            form=form)
 
 
@@ -202,7 +203,7 @@ def article_edit(id):
             return redirect(url_for('index'))
         else:
             article.title = form.title.data
-            article.body = Ubb2Html(form.body.data)
+            article.body = form.body.data
             article.category_id = form.category_id.data
             article.tag = form.tag.data
             article.text = request.form.get('textformat')
@@ -219,32 +220,51 @@ def article_edit(id):
         form.category_id.data = article.category_id
         form.is_open.data = article.is_open
     return render_template('article_create.html',
+                           title=u'编辑' + article.title,
                            form=form)
 
 
 def search():
     if not g.search_form.validate_on_submit():
-        return url_for('index')
+        return redirect(url_for('index'))
     return redirect(url_for('search_result', search=g.search_form.search.data, page=1))
 
 
 def search_result(search, page=1):
     result = Article.query.whoosh_search(search,
-                                         50).all()  # order_by(Article.timestamp.desc()).paginate(page, 5, False)
-    user = g.user
-    if not result:
-        return 'aaaaaaa'
-    count = Article.count_by_month()
+                                         or_=True).order_by(Article.timestamp.desc()).paginate(page, 5, False)
     return render_template("index.html",
                            title=u'搜索:' + search,
-                           user=user,
-                           article=result,
-                           count=count)
+                           article=result)
 
 
 def blog_msg():
     return render_template('blog_msg.html')
-
-
 def blog_about():
     return render_template('blog_about.html')
+
+
+def blog_calendar():
+    return render_template('blog_calendor.html')
+
+
+def calendar_json():
+    create_article = Article.find_by_month()
+    update_article = Article.find_edit()
+    data = []
+    for a in create_article:
+        dic = {
+            'title': u'新增文章' + a.title,
+            'url': '/article_show/' + a.title,
+            'start': str(a.post_date)
+        }
+        data.append(dic)
+    for a in update_article:
+        dic = {
+            'title': u'更新文章' + a.title,
+            'url': '/article_show/' + a.title,
+            'start': str(a.timestamp)
+        }
+        data.append(dic)
+    return json.dumps(data)
+

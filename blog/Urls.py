@@ -13,11 +13,13 @@ url('/article_show/<string:title>','views.article_show')
 url('/article_create','views.article_create',methods = ['GET', 'POST'])
 url('/article_edit/<int:id>','views.article_edit',methods = ['GET', 'POST'])
 url('/search','views.search',methods = ['GET', 'POST'])
-url('/search_result/<string:search>','views.search_result')
+url('/search_result/<string:search>/<int:page>', 'views.search_result')
 url('/upload','upload.upload',methods = ['GET', 'POST'])
 url('/uploads/<filename>','upload.uploaded_file')
 url('/blog_msg', 'views.blog_msg')
 url('/about', 'views.blog_about')
+url('/calendar', 'views.blog_calendar')
+url('/calendar_json', 'views.calendar_json')
 
 
 ############# admin ###############

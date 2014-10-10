@@ -29,17 +29,26 @@
                 {% endif %}
             {% endwith %}
             {% if g.user.is_authenticated() %}
-                <div class="navbar-right btn-group ">
+                <div class="pull-right  btn-group ">
                     {% if g.user.is_admin() %}
                         <a href="{{ url_for('article_create') }}" class="btn btn-link navbar-btn">
                             <span class="glyphicon glyphicon-plus blue"></span> 新增文章</a>
-                        <a href=" /admin/main" class="btn btn-link navbar-btn">
-                            <span class="glyphicon glyphicon-cog blue"></span> 后台管理</a>
+                        <button class="btn btn-link dropdown-toggle navbar-btn" data-toggle="dropdown">
+                            <i class="glyphicon glyphicon-user red"></i><span class="hidden-sm hidden-xs"> 管理员</span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu ">
+                        <li><a href="/admin/main">
+                            <i class="glyphicon glyphicon-wrench "></i> 后台管理</a></li>
+                    {% else %}
+                        <ul class="dropdown-menu ">
                     {% endif %}
-                    <a href="{{ url_for('usereditinfo') }}" class="btn btn-link navbar-btn">
-                        <span class="glyphicon glyphicon-wrench blue"></span> 个人设置</a>
-                    <a href="{{ url_for('logout') }}" class="btn btn-link navbar-btn">
-                        <span class="glyphicon glyphicon-log-out blue"></span> 登出</a>
+                    <li><a href="{{ url_for('usereditinfo') }}">
+                        <i class="glyphicon glyphicon-wrench "></i> 个人设置</a></li>
+                    <li class="divider"></li>
+                    <li><a href="{{ url_for('logout') }}">
+                        <i class="glyphicon glyphicon-log-out "></i> 退出系统</a></li>
+                    </ul>
                 </div>
             {% else %}
                 <div class="navbar-right btn-group ">

@@ -20,10 +20,11 @@ class User(db.Model):
     articles = db.relationship('Article', backref='author', lazy='dynamic')
     info = db.Column(db.String(140))
     url = db.Column(db.String(100))
-    is_locked = db.Column(db.Integer(1), default=User_LOCKED)
+    is_locked = db.Column(db.Integer, default=User_LOCKED)
     last_seen = db.Column(db.DateTime)
     register_date = db.Column(db.DateTime)
     register_ip = db.Column(db.String(15))
+
 
     def is_authenticated(self):
         return True
@@ -106,7 +107,7 @@ class Article(db.Model):
     text = db.Column(db.String(4000))
     tag = db.Column(db.String(50))
     post_date = db.Column(db.DateTime)
-    is_open = db.Column(db.Integer(1))
+    is_open = db.Column(db.Integer)
     timestamp = db.Column(db.DateTime, default=datetime.now())
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
@@ -132,7 +133,6 @@ class Article(db.Model):
 
     @classmethod
     def find_by_id(self, id):
-
         art = self.query.filter_by(id=id).first()
         return art
 
@@ -175,6 +175,23 @@ class Article(db.Model):
         return month_count
 
     @classmethod
+    def count_current_month(cls):
+        current_month = str(datetime.now())[:7]
+        count = db.session.query(Article.months, db.func.count('*').label('num')).filter(
+            Article.months == current_month).first().num
+        return count
+
+    @classmethod
+    def find_by_month(cls):
+        article = Article.query.filter(Article.is_open == 1).all()
+        return article
+
+    @classmethod
+    def find_edit(cls):
+        article = Article.query.filter(Article.is_open == 1, Article.post_date <> Article.timestamp).all()
+        return article
+
+    @classmethod
     def count_all(cls):
         count = db.session.query(db.func.count(Article.id).label('article_count')).first().article_count
         return count
@@ -190,7 +207,7 @@ class Category(db.Model):
     name = db.Column(db.String(20))
     createdate = db.Column(db.DateTime)
     articles = db.relationship('Article', backref='category', lazy='dynamic')
-    is_use = db.Column(db.Integer(1), default=IS_USE)
+    is_use = db.Column(db.Integer, default=IS_USE)
     seq = db.Column(db.Integer)
 
     def __repr__(self):
@@ -218,8 +235,8 @@ class Settings(db.Model):
     name = db.Column(db.String(20))
     url = db.Column(db.String(200))
     type = db.Column(db.String(20))
-    is_use = db.Column(db.Integer(1), default=1)
-    seq = db.Column(db.Integer())
+    is_use = db.Column(db.Integer, default=1)
+    seq = db.Column(db.Integer)
     icon = db.Column(db.String(50))
 
     @classmethod
@@ -263,6 +280,10 @@ class Visit_log(db.Model):
         count = Visit_log.query.filter(Visit_log.year == datetime.now().year).count()
         return count
 
+    @classmethod
+    def count_attack(cls):
+        count = Visit_log.query.filter(Visit_log.visiturl.like('%php%')).count()
+        return count
 
 class Login_log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -282,25 +303,32 @@ class Login_log(db.Model):
         return count
 
 
-class Tj(db.Model):
+class Blog_info(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     visit_all = db.Column(db.Integer)
     visit_day = db.Column(db.Integer)
     visit_month = db.Column(db.Integer)
     visit_year = db.Column(db.Integer)
+    count_attack = db.Column(db.Integer)
     article_all = db.Column(db.Integer)
+    article_month = db.Column(db.Integer)
     user_all = db.Column(db.Integer)
     login_all = db.Column(db.Integer)
     nowtimes = db.Column(db.DateTime, default=datetime.now())
+    blog_name = db.Column(db.String(20))
+
 
     @classmethod
-    def tongji(cls):
-        tj = Tj()
-        tj.visit_all = Visit_log.count_all()
-        tj.visit_day = Visit_log.count_by_day()
-        tj.article_all = Article.count_all()
-        tj.user_all = User.count_all()
-        tj.login_all = Login_log.count_all()
-        tj.nowtimes = str(datetime.now().time())[:8]
-        return tj
+    def info(cls):
+        info = Blog_info()
+        info.visit_all = Visit_log.count_all()
+        info.visit_day = Visit_log.count_by_day()
+        info.article_all = Article.count_all()
+        info.article_month = Article.count_current_month()
+        info.user_all = User.count_all()
+        info.login_all = Login_log.count_all()
+        info.nowtimes = str(datetime.now().time())[:8]
+        info.blog_name = Settings.blog_name().name
+        info.count_attack = Visit_log.count_attack()
+        return info
 

@@ -1,19 +1,19 @@
 <uwsgi>
-    <pythonpath>
-        /root/webhome/zblog/
-    </pythonpath>
-    <module>
-        run
-    </module>
-    <callable>
-        blog
-    </callable>
-    <socket>
-        127.0.0.1:3031
-    </socket>
+    <!--程序路径 -->
+    <pythonpath>/root/zblog</pythonpath>
+    <!--启动模块名字 -->
+    <module>run</module>
+    <!--app名字 -->
+    <callable>blog</callable>
+    <!--sock -->
+    <socket>/tmp/uwsgi.sock</socket>
+    <!--sock文件权限 -->
+    <chmod-socket>666</chmod-socket>
+    <!--超过这个时间的请求丢弃 -->
+    <harakiri>60</harakiri>
     <master/>
-    <processes>
-        4
-    </processes>
+    <!--进程数量 -->
+    <processes>4</processes>
+    <!--开启内存报告 -->
     <memory-report/>
 </uwsgi>
