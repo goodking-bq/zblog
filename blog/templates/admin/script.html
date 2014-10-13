@@ -1,9 +1,9 @@
-<script type="text/javascript" src="{{ url_for('static', filename='js/tinymce/tinymce.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery/jquery-2.1.1.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap/bootstrap.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap/bootstrap-datatables.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/charisma.js') }}"></script>
-<script type="text/javascript" src="{{ url_for('static', filename='js/jquery/jquery.dataTables.min.js') }}"></script>
+<script type="text/javascript"
+        src="{{ url_for('static', filename='ext/DataTables-1.10.3/media/js/jquery.dataTables.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='ext/bootstrap-sco/js/sco.modal.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='ext/bootstrap-sco/js/sco.confirm.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='ext/bootstrap-sco/js/sco.tooltip.js') }}"></script>
@@ -14,33 +14,6 @@
         src="{{ url_for('static', filename='js/responsive-tables/responsive-tables.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery/jquery.pin.min.js') }}"></script>
 
-<script type="text/javascript">
-    /*tinymce初始化设置  fontselect | fontsizeselect | */
-    tinymce.init({
-        language: 'zh_CN',
-        browser_spellcheck: true,
-        elements: "mceEditor",
-        mode: "exact",
-        theme: "modern",
-        skin: "lightgray",
-        apply_source_formatting: true,
-        toolbar: ["undo redo cut copy paste pasteword,pastetext | forecolor  backcolor bold italic underline strikethrough |contextmenu bbcode alignleft aligncenter alignright", "code hr fullpage| bullist numlist outdent indent searchreplace| link unlink image media pagebreak  emoticons preview  fullscreen  "],
-        plugins: 'image anchor autolink autoresize autosave bbcode charmap code colorpicker fullscreen insertdatetime link lists contextmenu bbcode importcss media fullpage noneditable pagebreak paste preview print save searchreplace spellchecker tabfocus emoticons table template textcolor lists hr textpattern visualblocks visualchars wordcount insertdatetime wordcount searchreplace'
-
-    });
-</script>
-<script type="text/javascript">
-    /*得到tinymce纯文本*/
-    function sumarticle() {
-        var ed = tinymce.activeEditor;
-        var e = ed.getBody();
-        ed.selection.select(e);
-        var text = ed.selection.getContent({ 'format': 'text' });
-        var first_500 = text.substr(0, 200);
-        document.getElementById('textformat').value = first_500;
-        document.getElementById('article_form').sumbit();
-    }
-</script>
 <script type="text/javascript">
     //渐入
     function msgin() {

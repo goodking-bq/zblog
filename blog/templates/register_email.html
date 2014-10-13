@@ -1,27 +1,30 @@
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<p>Dear {{user.nickname}},</p>
-<p>     谢谢你注册我的博客！</p>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<p>Dear {{ user.nicename }},</p>
+<p> 谢谢你注册我的博客！</p>
 <table>
     <tr valign="top">
-        <td><img src="{{user.avatar(50)}}"></td>
+        <td><img src="{{ user.avatar(50) }}"></td>
         <td>
-            <a href="{{url_for('user', nickname = user.nickname, _external = True)}}">{{user.nickname}}</a><br />
+            <a>{{ user.nicename }}</a><br/>
+        </td>
+        <td>
+            <a href="{{ url_for('login') }}">点击登录</a><br/>
         </td>
     </tr>
     <tr>
         <td>
-        注册邮箱：
+            注册邮箱：
         </td>
         <td>
-        {{user.nickname}}
+            {{ user.nicename }}
         </td>
     </tr>
     <tr>
         <td>
-        随机密码：
+            随机密码：
         </td>
         <td>
-        {{user.passwd}}
+            {{ user.passwd }}
         </td>
     </tr>
 </table>

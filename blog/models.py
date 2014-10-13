@@ -164,9 +164,9 @@ class Article(db.Model):
                 return art.paginate(page, pagenum, False)
 
     @classmethod
-    def article_per_page_all(cls, page, pagenum=ARTICLES_PER_PAGE):
-        art = Article.query.all().order_by(Article.timestamp.desc())
-        return art.paginate(page, pagenum, False)
+    def article_all(cls):
+        art = Article.query.order_by(Article.timestamp.desc())
+        return art
 
     @classmethod
     def count_by_month(cls):
@@ -224,11 +224,22 @@ class Category(db.Model):
 
 class Uploads(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    url = db.Column(db.String(50))
+    file_name = db.Column(db.String(50))
+    file_url = db.Column(db.String(50))
+    use_url = db.Column(db.String(50))
     file_type = db.Column(db.String(4))
-    upload_date = db.Column(db.DateTime, default=datetime.now())
+    upload_date = db.Column(db.DateTime)
     upload_user = db.Column(db.Integer)
 
+    @classmethod
+    def get_imgs(cls):
+        imgs = Uploads.query.filter_by(file_type='img').order_by(Uploads.upload_date.desc())
+        return imgs
+
+    @classmethod
+    def get_atts(cls):
+        atts = Uploads.query.filter_by(file_type='att').order_by(Uploads.upload_date.desc())
+        return atts
 
 class Settings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -248,13 +259,21 @@ class Settings(db.Model):
     @classmethod
     def blog_name(cls):
         blog_name = Settings.query.filter(Settings.type == 'blog_name', Settings.is_use == 1).first()
-        return blog_name
+        if blog_name:
+            return blog_name.name
+        else:
+            return 'zou-blog'
+
 
     @classmethod
     def first_bar(cls):
         first_bar = Settings.query.filter(Settings.type == 'first_bar', Settings.is_use == 1).order_by(Settings.seq)
         return first_bar
 
+    @classmethod
+    def blog_setting(cls):
+        settings = Settings.query.filter(Settings.seq == '', Settings.is_use == 1).all()
+        return settings
 
 class Visit_log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -264,6 +283,14 @@ class Visit_log(db.Model):
     year = db.Column(db.String(4), default=str(datetime.now())[:4])
     year_month = db.Column(db.String(7), default=str(datetime.now())[:7])
     year_month_day = db.Column(db.String(10), default=str(datetime.now())[:10])
+
+    def __init__(self, timestamp, ipaddr, visiturl):
+        self.timestamp = timestamp
+        self.ipaddr = ipaddr
+        self.visiturl = visiturl
+        self.year = str(timestamp)[:4]
+        self.year_month = str(timestamp)[:7]
+        self.year_month_day = str(timestamp)[:10]
 
     @classmethod
     def count_all(cls):
@@ -328,7 +355,7 @@ class Blog_info(db.Model):
         info.user_all = User.count_all()
         info.login_all = Login_log.count_all()
         info.nowtimes = str(datetime.now().time())[:8]
-        info.blog_name = Settings.blog_name().name
         info.count_attack = Visit_log.count_attack()
+        info.blog_name = Settings.blog_name()
         return info
 

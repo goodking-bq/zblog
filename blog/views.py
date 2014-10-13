@@ -69,7 +69,6 @@ def before_request():
     g.search_form = SearchForm()
     g.user = current_user
     g.info = Blog_info.info()
-    g.blog_name = Settings.blog_name()
     g.first_bar = Settings.first_bar()
     g.count = Article.count_by_month()
     if g.user.is_authenticated():
@@ -231,8 +230,8 @@ def search():
 
 
 def search_result(search, page=1):
-    result = Article.query.whoosh_search(search,
-                                         or_=True).order_by(Article.timestamp.desc()).paginate(page, 5, False)
+    result = Article.query.whoosh_search(search
+    ).order_by(Article.timestamp.desc()).paginate(page, 5, False)
     return render_template("index.html",
                            title=u'搜索:' + search,
                            article=result)
@@ -240,6 +239,8 @@ def search_result(search, page=1):
 
 def blog_msg():
     return render_template('blog_msg.html')
+
+
 def blog_about():
     return render_template('blog_about.html')
 

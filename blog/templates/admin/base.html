@@ -1,12 +1,12 @@
 <html lang="zh">
 <link href="{{ url_for('static',filename='css/bootstrap/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
-<link href="{{ url_for('static',filename='css/bootstrap/bootstrap-responsive.min.css') }}" rel="stylesheet"
-      type="text/css">
 <link href="{{ url_for('static',filename='css/mycss.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ url_for('static',filename='css/bootstrap/bootstrap-datatables.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ url_for('static',filename='ext/bootstrap-sco/css/scojs.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ url_for('static',filename='ext/bootstrap-sco/css/sco.message.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ url_for('static',filename='css/jquery-ui.min.css') }}" rel="stylesheet" type="text/css">
+<link href="{{ url_for('static',filename='ext/DataTables-1.10.3/media/css/jquery.dataTables.css') }}" rel="stylesheet"
+      type="text/css">
 
 {% block ext_css %}
 {% endblock %}
@@ -18,9 +18,9 @@
 <head>
     <link rel="shortcut icon" type="image/ico" href="{{ url_for('static',filename='favicon.ico') }}">
     {% if title %}
-        <title>{{ title }}-我的博客</title>
+        <title>{{ title }}-{{ g.info.blog_name }}</title>
     {% else %}
-        <title>我的博客</title>
+        <title>{{ g.info.blog_name }}</title>
     {% endif %}
 </head>
 <body>

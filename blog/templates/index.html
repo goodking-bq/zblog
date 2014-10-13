@@ -9,7 +9,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand">分类</a>
+            <a class="navbar-brand">分类 </a>
         </div>
         <div class="collapse navbar-collapse">
             <ul class="nav nav-tabs navbar-nav" role="tablist" id="ctgtab">
@@ -63,8 +63,8 @@
                         标签:<a href="#"> {{ art.tag }} </a>
 
                         <div class="pull-right">
-                            访问次数：{{ art.view_count() }}
-                            最后编辑于：<span class="badge"><small>{{ art.timestamp }}</small></span>
+                            访问次数：<span class="badge"><small class="h6">{{ art.view_count() }}</small></span>
+                            最后编辑于：{{ art.timestamp }}
                         </div>
                     </div>
                 </div>
@@ -131,12 +131,13 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-12 " style="max-height: 100px">
+                <div class="col-md-12 ">
                     <!-- UYAN NEW COMMENT BEGIN -->
                     <div id="uyan_newcmt_unit"></div>
                     <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1972001"></script>
                     <!-- 如果已经过加载此行JS，即可不用重复加载 -->
                     <!-- UYAN NEW COMMENT END -->
+                    <br/>
                 </div>
                 <br/>
 

@@ -4,8 +4,8 @@ __author__ = 'good'
 
 from blog import blog, db, lm
 from flask import render_template, flash, redirect, session, url_for, request, g
-from blog.models import User, Category, Article
-from blog.forms import AdminUserEditForm, CategoryForm, CategoryeditForm
+from blog.models import User, Category, Article, Settings, Uploads
+from blog.forms import AdminUserEditForm, CategoryForm, CategoryeditForm, Admin_second_barForm
 from datetime import datetime
 from flask.ext.login import login_required
 
@@ -138,7 +138,7 @@ def categorydelete(id):
 
 @login_required
 def article():
-    article = Article.article_per_page('all', 'all', 1, 10)
+    article = Article.article_all()
     return render_template('admin/article.html', article=article)
 
 
@@ -154,3 +154,64 @@ def articledelete(id):
         flash(u'无权限访问')
         return redirect(url_for('index'))
 
+
+@login_required
+def admin_second_bar():
+    bar = Settings.admin_second_bar()
+    return render_template('admin/admin_second_bar.html', bar=bar)
+
+
+@login_required
+def admin_second_baredit(id):
+    form = Admin_second_barForm()
+    bar = Settings.query.get(int(id))
+    if form.validate() and request.method == 'POST':
+        bar.name = form.name.data
+        bar.is_use = form.is_use.data
+        bar.seq = form.seq.data
+        bar.icon = form.icon.data
+        bar.url = form.url.data
+        db.session.add(bar)
+        db.session.commit()
+        flash(u'已保存修改！')
+        return redirect(url_for('admin_second_bar'))
+    else:
+        form.name.data = bar.name
+        form.is_use.data = bar.is_use
+        form.seq.data = bar.seq
+        form.url.data = bar.url
+        form.icon.data = bar.icon
+    return render_template('admin/admin_second_baredit.html', form=form)
+
+
+@login_required
+def settings():
+    form = Admin_second_barForm()
+    bar = Settings.query.get(int(id))
+    if form.validate() and request.method == 'POST':
+        bar.name = form.name.data
+        bar.is_use = form.is_use.data
+        bar.seq = form.seq.data
+        bar.icon = form.icon.data
+        bar.url = form.url.data
+        db.session.add(bar)
+        db.session.commit()
+        flash(u'已保存修改！')
+        return redirect(url_for('admin_second_bar'))
+    else:
+        form.name.data = bar.name
+        form.is_use.data = bar.is_use
+        form.seq.data = bar.seq
+        form.url.data = bar.url
+        form.icon.data = bar.icon
+    return render_template('admin/admin_second_baredit.html', form=form)
+
+
+def imgs():
+    imgs = Uploads.get_imgs()
+    return render_template('admin/imgs.html', imgs=imgs)
+
+
+def atts():
+    atts = Uploads.get_atts()
+    return render_template('admin/atts.html', atts=atts)
