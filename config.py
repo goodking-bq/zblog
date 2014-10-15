@@ -26,7 +26,7 @@ MAIL_PASSWORD = 'z120225883'
 
 
 # administrator list
-ADMINS = ['email@zousj.cn']
+ADMINS = ['email@zousj.cn', '120225883@qq.com']
 
 #每页显示的文章数
 ARTICLES_PER_PAGE = 10
@@ -41,3 +41,5 @@ ALLOWED_EXTENSIONS = set(['txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif', 'rar', 'zip
 MAX_CONTENT_LENGTH = 1 * 1024 * 1024
 #UPLOADED_FILES_DEST = os.path.join(basedir, 'uploads')
 #UPLOADED_FILES_ALLOW = set(['rar','zip','txt','jpg','pdf', 'png', 'jpg', 'jpeg', 'gif'])
+# 备份路径
+BACKUP_DIR = os.path.join(basedir, 'backup')

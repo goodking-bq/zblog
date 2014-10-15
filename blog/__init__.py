@@ -18,14 +18,14 @@ lm.init_app(blog)
 lm.login_view = 'login'
 lm.login_message = u"请先登录"
 
-#oid = OpenID(blog, os.path.join(basedir, 'tmp'))
+# oid = OpenID(blog, os.path.join(basedir, 'tmp'))
 
 # mail
 from flask.ext.mail import Mail
 
 mymail = Mail(blog)
 
-from blog import views, models, Urls, admin, upload
+from blog import views, models, Urls, admin, upload, backup
 
 
 

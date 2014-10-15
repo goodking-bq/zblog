@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 {% block list_bar %}
-    <nav class="navbar container navbar-default" role="navigation">
+    <nav class="navbar container  bg-success" role="navigation">
         <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
                     data-target="#bs-example-navbar-collapse-1">
@@ -43,7 +43,7 @@
     <div class=" container center-block">
         <div class=" pull-left" style="width: 70%;float: left">
             {% for art in article.items %}
-                <div class="panel panel-default panel-info ">
+                <div class="panel panel-danger  ">
                     <div class="panel-heading text-left">
                         <a href="{{ url_for('article_show',title=art.title) }}">{{ art.title }}</a>
                         {% if g.user.is_authenticated() and g.user.is_admin() %}
@@ -57,9 +57,9 @@
                         {% endif %}
                     </div>
                     <div class="panel-body text-left">
-                        <small>{{ art.text[:125]+'...' }}</small>
+                        <small>{{ art.text[:160]+'...' }}</small>
                     </div>
-                    <div class="panel-footer panel-default text-left">
+                    <div class="panel-footer panel-warning text-left">
                         标签:<a href="#"> {{ art.tag }} </a>
 
                         <div class="pull-right">

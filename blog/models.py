@@ -4,6 +4,7 @@ import flask.ext.whooshalchemy as whooshalchemy
 from hashlib import md5
 from config import ARTICLES_PER_PAGE, RANDOM_PASSWORD_LENGTH
 from datetime import datetime
+from blog.extend.StringHelper import realaddr
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -200,7 +201,7 @@ class Article(db.Model):
 whooshalchemy.whoosh_index(blog, Article)
 
 # class comments(db.Model):
-#    id=id = db.Column(db.Integer, primary_key=True)
+# id=id = db.Column(db.Integer, primary_key=True)
 
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -241,6 +242,7 @@ class Uploads(db.Model):
         atts = Uploads.query.filter_by(file_type='att').order_by(Uploads.upload_date.desc())
         return atts
 
+
 class Settings(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(20))
@@ -275,6 +277,7 @@ class Settings(db.Model):
         settings = Settings.query.filter(Settings.seq == '', Settings.is_use == 1).all()
         return settings
 
+
 class Visit_log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.DateTime, default=datetime.now())
@@ -283,6 +286,7 @@ class Visit_log(db.Model):
     year = db.Column(db.String(4), default=str(datetime.now())[:4])
     year_month = db.Column(db.String(7), default=str(datetime.now())[:7])
     year_month_day = db.Column(db.String(10), default=str(datetime.now())[:10])
+    real_addr = db.Column(db.String(50))
 
     def __init__(self, timestamp, ipaddr, visiturl):
         self.timestamp = timestamp
@@ -291,6 +295,7 @@ class Visit_log(db.Model):
         self.year = str(timestamp)[:4]
         self.year_month = str(timestamp)[:7]
         self.year_month_day = str(timestamp)[:10]
+        self.real_addr = realaddr(ipaddr)
 
     @classmethod
     def count_all(cls):
@@ -312,14 +317,24 @@ class Visit_log(db.Model):
         count = Visit_log.query.filter(Visit_log.visiturl.like('%php%')).count()
         return count
 
+
 class Login_log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100))
     timestamp = db.Column(db.DateTime, default=datetime.now())
     ipaddr = db.Column(db.String(15))
-    year = db.Column(db.String(4), default=datetime.now().year)
-    year_month = db.Column(db.String(7), default=str(datetime.now())[:7])
-    year_month_day = db.Column(db.String(10), default=datetime.now().date())
+    year = db.Column(db.String(4))
+    year_month = db.Column(db.String(7))
+    year_month_day = db.Column(db.String(10))
+    real_addr = db.Column(db.String(50))
+
+    def __init__(self, email, ipaddr):
+        self.email = email
+        self.ipaddr = ipaddr
+        self.real_addr = realaddr(ipaddr)
+        self.year = datetime.now().year
+        self.year_month = str(datetime.now())[:7]
+        self.year_month_day = datetime.now().date()
 
     def __str__(self):
         return self.email
@@ -328,6 +343,15 @@ class Login_log(db.Model):
     def count_all(cls):
         count = db.session.query(db.func.count(Login_log.id).label('login_all')).first().login_all
         return count
+
+
+class Backup_log(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    start_time = db.Column(db.DateTime)
+    finish_time = db.Column(db.DateTime)
+    status = db.Column(db.String(10))
+    msg = db.Column(db.Text)
+    type = db.Column(db.String(10))
 
 
 class Blog_info(db.Model):

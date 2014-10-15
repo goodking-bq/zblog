@@ -13,10 +13,10 @@ from flask.ext.login import login_required
 @login_required
 def index1():
     if g.user.is_admin():
-        return render_template('admin/index.html')
+        flash(u'管理员登入')
     else:
-        flash(u'无权限访问')
-        return redirect(url_for('index'))
+        flash(u'普通权限登陆，不能更改任何东西')
+    return render_template('admin/index.html')
 
 
 @login_required
@@ -26,7 +26,7 @@ def users():
         return render_template('admin/users.html', users=users)
     else:
         flash(u'无权限访问')
-        return redirect(url_for('index'))
+        return redirect(url_for('index1'))
 
 
 @login_required
@@ -34,7 +34,7 @@ def useredit(id):
     if g.user.is_admin():
         form = AdminUserEditForm()
         user = User.query.get(int(id))
-        if form.validate_on_submit() and request.method == 'POST':
+        if form.validate_on_submit() and request.method == 'POST' and g.user.is_admin():
             user.is_locked = form.is_locked.data
             user.role = form.role.data
             db.session.add(user)
@@ -48,7 +48,7 @@ def useredit(id):
                                form=form, user=user)
     else:
         flash(u'无权限访问')
-        return redirect(url_for('index'))
+        return redirect(url_for('index1'))
 
 
 @login_required
@@ -61,17 +61,13 @@ def userdelete(id):
         return redirect(url_for('users'))
     else:
         flash(u'无权限访问')
-        return redirect(url_for('index'))
+        return redirect(url_for('index1'))
 
 
 @login_required
 def category():
-    if g.user.is_admin():
-        category = Category.query.all()
-        return render_template('admin/category.html', category=category)
-    else:
-        flash(u'无权限访问')
-        return redirect(url_for('index'))
+    category = Category.query.all()
+    return render_template('admin/category.html', category=category)
 
 
 @login_required
@@ -97,15 +93,15 @@ def categorycreate():
                                form=form)
     else:
         flash(u'无权限访问')
-        return redirect(url_for('index'))
+        return redirect(url_for('index1'))
 
 
 @login_required
 def categoryedit(id):
-    if g.user.is_admin():
-        form = CategoryeditForm()
-        category = Category.query.get(int(id))
-        if form.validate() and request.method == 'POST':
+    form = CategoryeditForm()
+    category = Category.query.get(int(id))
+    if form.validate() and request.method == 'POST':
+        if g.user.is_admin():
             category.name = form.name.data
             category.is_use = form.is_use.data
             category.seq = form.seq.data
@@ -114,13 +110,12 @@ def categoryedit(id):
             flash(u'已保存修改！')
             return redirect(url_for('category'))
         else:
-            form.name.data = category.name
-            form.is_use.data = category.is_use
-            form.seq.data = category.seq
-        return render_template('admin/categoryedit.html', form=form)
+            return redirect(url_for('index1'))
     else:
-        flash(u'无权限访问')
-        return redirect(url_for('index'))
+        form.name.data = category.name
+        form.is_use.data = category.is_use
+        form.seq.data = category.seq
+    return render_template('admin/categoryedit.html', form=form)
 
 
 @login_required
@@ -132,8 +127,7 @@ def categorydelete(id):
         flash(u'删除成功！')
         return redirect(url_for('category'))
     else:
-        flash(u'无权限访问')
-        return redirect(url_for('index'))
+        return redirect(url_for('index1'))
 
 
 @login_required
@@ -151,8 +145,7 @@ def articledelete(id):
         flash(u'删除成功！')
         return redirect(url_for('article'))
     else:
-        flash(u'无权限访问')
-        return redirect(url_for('index'))
+        return redirect(url_for('index1'))
 
 
 @login_required
@@ -166,15 +159,18 @@ def admin_second_baredit(id):
     form = Admin_second_barForm()
     bar = Settings.query.get(int(id))
     if form.validate() and request.method == 'POST':
-        bar.name = form.name.data
-        bar.is_use = form.is_use.data
-        bar.seq = form.seq.data
-        bar.icon = form.icon.data
-        bar.url = form.url.data
-        db.session.add(bar)
-        db.session.commit()
-        flash(u'已保存修改！')
-        return redirect(url_for('admin_second_bar'))
+        if g.user.is_admin():
+            bar.name = form.name.data
+            bar.is_use = form.is_use.data
+            bar.seq = form.seq.data
+            bar.icon = form.icon.data
+            bar.url = form.url.data
+            db.session.add(bar)
+            db.session.commit()
+            flash(u'已保存修改！')
+            return redirect(url_for('admin_second_bar'))
+        else:
+            return redirect(url_for('index1'))
     else:
         form.name.data = bar.name
         form.is_use.data = bar.is_use
@@ -207,11 +203,19 @@ def settings():
     return render_template('admin/admin_second_baredit.html', form=form)
 
 
+@login_required
 def imgs():
-    imgs = Uploads.get_imgs()
-    return render_template('admin/imgs.html', imgs=imgs)
+    if g.user.is_admin():
+        imgs = Uploads.get_imgs()
+        return render_template('admin/imgs.html', imgs=imgs)
+    else:
+        return redirect(url_for('index1'))
 
 
+@login_required
 def atts():
-    atts = Uploads.get_atts()
-    return render_template('admin/atts.html', atts=atts)
+    if g.user.is_admin():
+        atts = Uploads.get_atts()
+        return render_template('admin/atts.html', atts=atts)
+    else:
+        return redirect(url_for('index1'))

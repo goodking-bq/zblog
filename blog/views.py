@@ -75,8 +75,7 @@ def before_request():
         g.user.last_seen = datetime.now()
         db.session.add(g.user)
         db.session.commit()
-        if g.user.is_admin():
-            g.list_bar = Settings.admin_second_bar()
+        g.list_bar = Settings.admin_second_bar()
     if request.url.find('static') < 0 and request.url.find('favicon.ico') < 0:
         log = Visit_log(timestamp=datetime.now(),
                         ipaddr=request.remote_addr,

@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+{% block ext_css %}
+    <link href="{{ url_for('static',filename='js/responsive-tables/responsive-tables.css') }}" rel="stylesheet"
+          type="text/css">
+
+{% endblock %}
+{% block content %}
+    <ol class="breadcrumb">
+        <li><a href="#">后台</a></li>
+        <li class="active">网站备份</li>
+    </ol>
+    <hr/>
+    <div class="box-header well" data-original-title="">
+        <h2><i class="glyphicon glyphicon-hdd red"></i> 网站备份</h2>
+    </div>
+    <hr/>
+    <div class="center"><a href="{{ url_for('dobackup') }}" class="btn-lg btn-warning">立即备份</a></div>
+    <div class="box-content ">
+        <div class="alert alert-success">
+            上次备份开始时间：{{ log.start_time }}<br/>
+            上次备份结束时间：{{ log.finish_time }}<br/>
+            状态：{{ log.status }}<br/>
+            邮件：已发送<br/>
+            具体日志：{{ log.msg|safe }}<br/>
+        </div>
+    </div>
+{% endblock %}
+{% block script %}
+    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery/jquery-2.1.1.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='ext/DataTables-1.10.3/media/js/jquery.dataTables.js') }}"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#category').dataTable({
+                stateSave: true
+            });
+        });
+    </script>
+{% endblock %}

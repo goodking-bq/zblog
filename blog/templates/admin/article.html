@@ -1,6 +1,7 @@
 {% extends "admin/base.html" %}
 {% block ext_css %}
-    <link href="{{ url_for('static',filename='js/responsive-tables/responsive-tables.css') }}" rel="stylesheet"
+    <link href="{{ url_for('static',filename='ext/DataTables-1.10.3/media/css/jquery.dataTables.css') }}"
+          rel="stylesheet"
           type="text/css">
 {% endblock %}
 {% block content %}
@@ -35,7 +36,13 @@
             <tbody>
             {% for a in article %}
                 <tr>
-                    <td>{{ a.title }}</td>
+                    <td>
+                        {% if a.title[20] %}
+                            {{ a.title[:20]+'...' }}
+                        {% else %}
+                            {{ a.title }}
+                        {% endif %}
+                    </td>
                     <td class="center">{{ a.category_id }}</td>
                     {% if a.is_open == 1 %}
                         <td class="center-text">

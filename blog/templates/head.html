@@ -8,7 +8,7 @@
             </button>
             <a class="navbar-brand" href="{{ url_for('index') }}">{{ g.info.blog_name }}</a>
         </div>
-        <div id="navbar" class="collapse navbar-collapse">
+        <div id="navbar" class="collapse navbar-collapse ">
             <ul class="nav navbar-nav">
                 {% for f in g.first_bar %}
                     {% if request.url.find(f.url)>=0 %}
@@ -38,11 +38,15 @@
                             <span class="caret"></span>
                         </button>
                         <ul class="dropdown-menu ">
-                        <li><a href="/admin/main">
-                            <i class="glyphicon glyphicon-wrench "></i> 后台管理</a></li>
                     {% else %}
+                        <button class="btn btn-link dropdown-toggle navbar-btn" data-toggle="dropdown">
+                            <i class="glyphicon glyphicon-user red"></i><span class="hidden-sm hidden-xs"> 用户</span>
+                            <span class="caret"></span>
+                        </button>
                         <ul class="dropdown-menu ">
                     {% endif %}
+                    <li><a href="/admin/main">
+                        <i class="glyphicon glyphicon-wrench "></i> 后台管理</a></li>
                     <li><a href="{{ url_for('usereditinfo') }}">
                         <i class="glyphicon glyphicon-wrench "></i> 个人设置</a></li>
                     <li class="divider"></li>
