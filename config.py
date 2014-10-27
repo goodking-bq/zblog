@@ -12,7 +12,7 @@ PERMANENT_SESSION_LIFETIME = datetime.timedelta(minutes=5)
 
 basedir = os.path.abspath(os.path.dirname(__file__))
 SQLALCHEMY_DATABASE_URI = 'mysql://root:zoushjde@192.168.137.2/blog'
-#SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'blog.db')
+# SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'blog.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 
@@ -43,3 +43,11 @@ MAX_CONTENT_LENGTH = 1 * 1024 * 1024
 #UPLOADED_FILES_ALLOW = set(['rar','zip','txt','jpg','pdf', 'png', 'jpg', 'jpeg', 'gif'])
 # 备份路径
 BACKUP_DIR = os.path.join(basedir, 'backup')
+LOG_DIR = os.path.join(basedir, 'tmp')
+
+# 机器人访问关键字
+ROBOT_VISIT = set(
+    ['Baiduspider', 'JianKongBao', 'DotBot', 'bingbot', 'Googlebot', '360Spider', 'EasouSpider', 'YisouSpider',
+     'Sogou web spider'])
+#恶意访问关键字
+ATTACK_VISIT = set(['php'])

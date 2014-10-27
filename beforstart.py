@@ -17,8 +17,9 @@ setup(
         'Flask-MySQL',
         'Flask-WhooshAlchemy',
         'Flask-mail',
+        'APScheduler',
         # 'sqlalchemy',
-        #'Werkzeug',
+        # 'Werkzeug',
         # 'WTForms'
     ]
 

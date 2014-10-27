@@ -6,6 +6,7 @@ import random
 from hashlib import md5, sha1
 from base64 import b64encode
 from datetime import datetime
+from config import ROBOT_VISIT, ATTACK_VISIT
 
 """ 返回l长度的随机字符串及经过加密的字符串"""
 
@@ -60,3 +61,30 @@ def realaddr(ip):
     else:
         return u'查询失败'
 
+
+'''
+    机器人访问
+'''
+
+
+def is_robot(agent):
+    s = 0
+    for robot in ROBOT_VISIT:
+        if agent.find(robot) >= 0:
+            s = 1
+            return s
+    return s
+
+
+'''
+    恶意访问判断
+'''
+
+
+def is_attack(url):
+    s = 0
+    for attack in ATTACK_VISIT:
+        if url.find(attack) >= 0:
+            s = 1
+            return s
+    return s

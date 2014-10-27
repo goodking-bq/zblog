@@ -63,7 +63,7 @@
                         标签:<a href="#"> {{ art.tag }} </a>
 
                         <div class="pull-right">
-                            访问次数：<span class="badge"><small class="h6">{{ art.view_count() }}</small></span>
+                            访问次数：<span class="badge"><small class="h6">{{ art.numLook }}</small></span>
                             最后编辑于：{{ art.timestamp }}
                         </div>
                     </div>
@@ -147,20 +147,24 @@
                         <div class="panel-body text-left">
                             <span class="glyphicon glyphicon-circle-arrow-right"></span> 日访问量：{{ g.info.visit_day }}
                             <br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 月访问量：{{ g.info.visit_month }}
+                            <br/>
                             <span class="glyphicon glyphicon-circle-arrow-right"></span> 总访问量：{{ g.info.visit_all }}
                             <br/>
                             <span class="glyphicon glyphicon-circle-arrow-right"></span> 文章总数：{{ g.info.article_all }}
                             <br/>
                             <span class="glyphicon glyphicon-circle-arrow-right"></span> 本月新增：{{ g.info.article_month }}
                             <br/>
-                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 用户数量：{{ g.info.user_all }}<br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 用户数量：{{ g.info.user_all }}
+                            <br/>
                             <span class="glyphicon glyphicon-circle-arrow-right"></span> 登陆次数：{{ g.info.login_all }}
                             <br/>
                             <span class="glyphicon glyphicon-circle-arrow-right"></span> 总访问量：{{ g.info.visit_all }}
                             <br/>
-                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 恶意访问：{{ g.info.count_attack }}
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 恶意访问：{{ g.info.visit_attack }}
                             <br/>
-                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 当前时间：{{ g.info.nowtimes }}<br/>
+                            <span class="glyphicon glyphicon-circle-arrow-right"></span> 爬虫访问：{{ g.info.visit_robot }}
+                            <br/>
                         </div>
                     </div>
                 </div>

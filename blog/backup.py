@@ -37,10 +37,9 @@ def dobackup():
         msg = msg + str(start_time) + ' -> ' + u'此次备份开始' + '<br/>'
         # try:
         # subprocess.Popen(back_script).wait()
-        # return 1
         # except Exception,ex:
         # return Exception+':'+ex
-        zip_file(UPLOAD_FOLDER, BACKUP_DIR)  # 压缩上传的附件
+        zip_file(UPLOAD_FOLDER)  # 压缩上传的附件
         msg = msg + str(datetime.now()) + ' -> ' + u'添加数据库备份到压缩文件' + '<br/>'
         # zf=zipfile.ZipFile(back_file,"a",zipfile.zlib.DEFLATED)
         #zf.write(sql_dir)
@@ -62,7 +61,7 @@ def dobackup():
         return redirect(url_for('index1'))
 
 
-def zip_file(dirname, zipfiledir):  # 压缩文件夹
+def zip_file(dirname):  # 压缩文件夹
     global msg
     filelist = []
     msg = msg + str(datetime.now()) + ' -> ' + u'加载需要压缩的上传文件' + '<br/>'
@@ -73,7 +72,7 @@ def zip_file(dirname, zipfiledir):  # 压缩文件夹
             for name in files:
                 filelist.append(os.path.join(root, name))
     msg = msg + str(datetime.now()) + ' -> ' + u'上传文件加载完毕，开始压缩' + '<br/>'
-    zf = zipfile.ZipFile(back_file, "w", zipfile.zlib.DEFLATED)
+    zf = zipfile.ZipFile(back_file, "a", zipfile.zlib.DEFLATED)
     for target in filelist:
         arcname = target[len(dirname):]
         zf.write(target, arcname)

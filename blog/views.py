@@ -11,11 +11,12 @@ from models import User, Settings, ROLE_USER, User_LOCKED, IS_USE, Article, Cate
 from datetime import datetime
 import json
 # from flask import copy_current_request_context
+from blog.extend.StringHelper import is_robot, is_attack
 
 
 @blog.route('/', methods=['GET', 'POST'])
 @blog.route('/index', methods=['GET', 'POST'])
-@blog.route('/index/<string:categoryname>/<string:month>/<int:page>', methods=['GET', 'POST'])
+@blog.route('/<string:categoryname>/<string:month>/<int:page>', methods=['GET', 'POST'])
 def index(categoryname='all', month='all', page=1):
     user = g.user
     category = Category.query.filter_by(is_use=1).order_by(Category.seq)
@@ -48,6 +49,7 @@ def login():
                             ipaddr=request.remote_addr)
             db.session.add(log)
             db.session.commit()
+            Blog_info.new_login()
             return redirect(request.args.get("next") or url_for("index"))
         else:
             flash(u'用户名或密码错误')
@@ -77,11 +79,23 @@ def before_request():
         db.session.commit()
         g.list_bar = Settings.admin_second_bar()
     if request.url.find('static') < 0 and request.url.find('favicon.ico') < 0:
-        log = Visit_log(timestamp=datetime.now(),
-                        ipaddr=request.remote_addr,
-                        visiturl=request.base_url)
-        db.session.add(log)
-        db.session.commit()
+        agent = request.headers['User-Agent']
+        url = request.base_url
+        Blog_info.new_visit(url=url, agent=agent)
+        if is_attack(url):
+            log = Visit_log(timestamp=datetime.now(),
+                            ipaddr=request.remote_addr,
+                            visiturl=url,
+                            agent=agent)
+            db.session.add(log)
+            db.session.commit()
+        elif not is_robot(agent):
+            log = Visit_log(timestamp=datetime.now(),
+                            ipaddr=request.remote_addr,
+                            visiturl=url,
+                            agent=agent)
+            db.session.add(log)
+            db.session.commit()
 
 
 @login_required
@@ -150,14 +164,17 @@ def register():
         user.passwd = pwd['pwd']
         register_mail(user)
         flash(u'恭喜，注册成功！')
+        Blog_info.new_user()
         return redirect(url_for('login'))
     return render_template('register.html',
                            title=u'欢迎注册',
                            form=form)
 
 
+@blog.route('/<string:title>')
+# @blog.route('/article_show/<string:title>')
 def article_show(title):
-    article = Article.find_by_name(title)
+    article = Article.find_by_name(title, request.headers['User-Agent'])
     return render_template('article_show.html',
                            title=title,
                            article=article)
@@ -185,6 +202,7 @@ def article_create():
             db.session.add(article)
             db.session.commit()
             flash(u'文章已创建！')
+            Blog_info.new_article()
             return redirect(url_for('index'))
     return render_template('article_create.html',
                            title=u'创建文章',

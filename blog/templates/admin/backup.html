@@ -25,15 +25,3 @@
         </div>
     </div>
 {% endblock %}
-{% block script %}
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery/jquery-2.1.1.js') }}"></script>
-    <script type="text/javascript"
-            src="{{ url_for('static', filename='ext/DataTables-1.10.3/media/js/jquery.dataTables.js') }}"></script>
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('#category').dataTable({
-                stateSave: true
-            });
-        });
-    </script>
-{% endblock %}
