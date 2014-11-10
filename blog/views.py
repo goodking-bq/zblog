@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from blog import blog, db, lm
+from blog import blog, db, lm, cache
 from flask import render_template, flash, redirect, session, url_for, request, g
 from forms import LoginForm, UserEditForm, \
     RegisterForm, ArticleCreateForm, \
@@ -8,10 +8,10 @@ from forms import LoginForm, UserEditForm, \
     UploadFileForm
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from models import User, Settings, ROLE_USER, User_LOCKED, IS_USE, Article, Category, Visit_log, Blog_info, Login_log
-from datetime import datetime
+import datetime
 import json
 # from flask import copy_current_request_context
-from blog.extend.StringHelper import is_robot, is_attack
+from blog.extend.StringHelper import is_robot, is_attack, random_color
 
 
 @blog.route('/', methods=['GET', 'POST'])
@@ -74,7 +74,7 @@ def before_request():
     g.first_bar = Settings.first_bar()
     g.count = Article.count_by_month()
     if g.user.is_authenticated():
-        g.user.last_seen = datetime.now()
+        g.user.last_seen = datetime.datetime.now()
         db.session.add(g.user)
         db.session.commit()
         g.list_bar = Settings.admin_second_bar()
@@ -83,14 +83,14 @@ def before_request():
         url = request.base_url
         Blog_info.new_visit(url=url, agent=agent)
         if is_attack(url):
-            log = Visit_log(timestamp=datetime.now(),
+            log = Visit_log(timestamp=datetime.datetime.now(),
                             ipaddr=request.remote_addr,
                             visiturl=url,
                             agent=agent)
             db.session.add(log)
             db.session.commit()
         elif not is_robot(agent):
-            log = Visit_log(timestamp=datetime.now(),
+            log = Visit_log(timestamp=datetime.datetime.now(),
                             ipaddr=request.remote_addr,
                             visiturl=url,
                             agent=agent)
@@ -158,7 +158,7 @@ def register():
                     passwd=pwd['pwdmd5'],
                     is_locked=User_LOCKED,
                     register_ip=request.remote_addr)
-        user.register_date = datetime.now(),
+        user.register_date = datetime.datetime.now(),
         db.session.add(user)
         db.session.commit()
         user.passwd = pwd['pwd']
@@ -173,6 +173,7 @@ def register():
 
 @blog.route('/<string:title>')
 # @blog.route('/article_show/<string:title>')
+@cache.cached(timeout=10)
 def article_show(title):
     article = Article.find_by_name(title, request.headers['User-Agent'])
     return render_template('article_show.html',
@@ -188,7 +189,7 @@ def article_create():
             flash(u'非管理员不能创建文章！')
             return redirect(url_for('index'))
         else:
-            nowtime = datetime.now()
+            nowtime = datetime.datetime.now()
             article = Article(title=form.title.data,
                               body=form.body.data,
                               user_id=g.user.id,
@@ -224,7 +225,7 @@ def article_edit(id):
             article.tag = form.tag.data
             article.text = request.form.get('textformat')
             article.is_open = form.is_open.data
-            article.timestamp = datetime.now()
+            article.timestamp = datetime.datetime.now()
             db.session.add(article)
             db.session.commit()
             flash(u'已保存修改!')
@@ -249,8 +250,10 @@ def search():
 def search_result(search, page=1):
     result = Article.query.whoosh_search(search
     ).order_by(Article.timestamp.desc()).paginate(page, 5, False)
+    category = Category.query.filter_by(is_use=1).order_by(Category.seq)
     return render_template("index.html",
                            title=u'搜索:' + search,
+                           category=category,
                            article=result)
 
 
@@ -258,17 +261,49 @@ def blog_msg():
     return render_template('blog_msg.html')
 
 
+# @cache.cached(unless=True)
 def blog_about():
-    return render_template('blog_about.html')
+    from flask import json
+
+    today = datetime.datetime.now().date()
+    labels = list()
+    visit = list()
+    attack = list()
+    artdata = list()
+    redata = Blog_info.query.order_by(Blog_info.date).limit(15)
+    art = Article.count_by_category()
+    for d in redata:
+        visit.append(str(d.visit_day))
+        attack.append(str(d.visit_attack_day))
+        labels.append(str(d.date)[5:])
+    for i in range(20 - len(visit)):
+        de = datetime.timedelta(days=i + 1)
+        labels.append(str(today + de)[5:])
+    for a in art:
+        d = {
+            'value': a.count,
+            'color': random_color(),
+            'highlight': random_color(),
+            'label': a.name
+        }
+        artdata.append(d)
+    return render_template('blog_about.html',
+                           labels=labels,
+                           visit=visit,
+                           attack=attack,
+                           artdata=json.dumps(artdata))
 
 
+@cache.cached(unless=True)
 def blog_calendar():
     return render_template('blog_calendor.html')
 
 
+@cache.memoize(unless=True)
 def calendar_json():
     create_article = Article.find_by_month()
     update_article = Article.find_edit()
+    visit = Blog_info.query.all()
     data = []
     for a in create_article:
         dic = {
@@ -282,6 +317,12 @@ def calendar_json():
             'title': u'更新文章' + a.title,
             'url': '/article_show/' + a.title,
             'start': str(a.timestamp)
+        }
+        data.append(dic)
+    for v in visit:
+        dic = {
+            'title': u'日访问量:' + str(v.visit_day),
+            'start': str(v.date)
         }
         data.append(dic)
     return json.dumps(data)

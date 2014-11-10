@@ -35,15 +35,11 @@ def dobackup():
         start_time = datetime.now()
         global msg
         msg = msg + str(start_time) + ' -> ' + u'此次备份开始' + '<br/>'
-        # try:
-        # subprocess.Popen(back_script).wait()
-        # except Exception,ex:
-        # return Exception+':'+ex
         zip_file(UPLOAD_FOLDER)  # 压缩上传的附件
         msg = msg + str(datetime.now()) + ' -> ' + u'添加数据库备份到压缩文件' + '<br/>'
-        # zf=zipfile.ZipFile(back_file,"a",zipfile.zlib.DEFLATED)
-        #zf.write(sql_dir)
-        #zf.close()
+        zf = zipfile.ZipFile(back_file, "a", zipfile.zlib.DEFLATED)
+        zf.write(sql_dir)
+        zf.close()
         msg = msg + str(datetime.now()) + ' -> ' + u'整个备份压缩成功' + '<br/>'
         backup_mail(back_file, msg)
         msg = msg + str(datetime.now()) + ' -> ' + u'已异步发送邮件，请查收' + '<br/>'

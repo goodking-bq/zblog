@@ -11,6 +11,7 @@ from config import ROBOT_VISIT, ATTACK_VISIT
 """ 返回l长度的随机字符串及经过加密的字符串"""
 
 basicstring = '''1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()_+=-[]{}/'''
+colorstring = '''0123456789ABCDEF'''
 
 
 def make_random_passwd(l, pwd, email):
@@ -35,6 +36,12 @@ def make_random_passwd(l, pwd, email):
     return {'pwd': pwd,
             'pwdmd5': pwdmd5,
             'email': email}
+
+
+def random_color():
+    color = ''.join(random.sample(colorstring, 6))
+    color = '#' + color
+    return color
 
 
 def get_avatar_url(email, size):

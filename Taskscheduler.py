@@ -2,14 +2,14 @@
 # -*- coding:utf-8 -*-
 __author__ = 'good'
 __createday__ = '2014-10-16'
-from blog.models import Article, Visit_log, Blog_info, User, Login_log, Ip_blacklist, apscheduler_jobs
+
+from blog.models import Article, Visit_log, Blog_info, User, Login_log, Ip_blacklist
 from blog import db
 import datetime
 from flask import redirect, url_for, flash, g
 from flask.ext.login import login_required
 
 
-@login_required
 def visit_statistics():  # 访问统计.filter(Visit_log.id <= max_id)
     if g.user.is_admin():
         max_id = db.session.query(db.func.max(Visit_log.id).label('max_id')).first().max_id
@@ -77,4 +77,21 @@ def visit_statistics():  # 访问统计.filter(Visit_log.id <= max_id)
     else:
         flash(u'无权限操作')
     return redirect(url_for('index1'))
+
+
+def test():
+    info = Blog_info.query.order_by(Blog_info.id.desc())
+    for i in info:
+        print i.visit_all
+
+
+def nginx_log():
+    from config import LOG_NGINX
+
+    access = LOG_NGINX + r'\host.access.log'
+    log = file(access, 'r').readlines()
+    print len(log)
+
+
+nginx_log()
 

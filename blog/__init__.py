@@ -1,9 +1,9 @@
-#!/usr/bin/python
 # -*- coding:utf-8 -*-
 import os
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
+from flask.ext.cache import Cache
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
     MAIL_PASSWORD, LOG_DIR, SQLALCHEMY_DATABASE_URI
 
@@ -17,11 +17,14 @@ lm.init_app(blog)
 lm.login_view = 'login'
 lm.login_message = u"请先登录"
 
+cache = Cache(blog)
+
 
 # oid = OpenID(blog, os.path.join(basedir, 'tmp'))
 
 # mail
 from flask.ext.mail import Mail
+
 mymail = Mail(blog)
 
 from blog import views, models, Urls, admin, upload, backup
@@ -29,7 +32,7 @@ from blog import views, models, Urls, admin, upload, backup
 
 
 
-#logs
+# logs
 '''
 if not blog.debug:
     import logging

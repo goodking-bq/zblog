@@ -1,10 +1,11 @@
 # -*- coding:utf-8 -*-
-from blog import db, blog
+from blog import db, blog, cache
 import flask.ext.whooshalchemy as whooshalchemy
 from hashlib import md5
 from config import ARTICLES_PER_PAGE, RANDOM_PASSWORD_LENGTH
 from datetime import datetime
 from blog.extend.StringHelper import realaddr, is_robot, is_attack
+from blog.extend.decorators import async
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -137,16 +138,13 @@ class Article(db.Model):
     def __repr__(self):
         return '<Article %r>' % (self.title)
 
-    def view_count(self, max_id):
-        count = db.session.query(Visit_log.id <= max_id).filter(Visit_log.visiturl.like('%' + self.title + '%')
-        ).count()
-        return count
-
+    # 根据ID
     @classmethod
     def find_by_id(self, max_id):
         art = self.query.filter_by(id=max_id).first()
         return art
 
+    # 根据title查找，每次查询numlook+1（排除robot访问）
     @classmethod
     def find_by_name(self, title, agent):
         art = self.query.filter_by(title=title).first_or_404()
@@ -154,6 +152,7 @@ class Article(db.Model):
             art.numLook += 1
         return art
 
+    # 分类、分月查询
     @classmethod
     def article_per_page(cls, name, month, page, pagenum=ARTICLES_PER_PAGE):
         if name == 'all' and month == 'all':
@@ -176,17 +175,20 @@ class Article(db.Model):
                     Article.timestamp.desc())
                 return art.paginate(page, pagenum, False)
 
+    # 所有博文，最后编辑时间倒序
     @classmethod
     def article_all(cls):
         art = Article.query.order_by(Article.timestamp.desc())
         return art
 
+    #按月统计
     @classmethod
     def count_by_month(cls):
         month_count = db.session.query(Article.months, db.func.count('*').label('num')).group_by(
             Article.months).order_by(Article.months.desc())
         return month_count
 
+    #当月博文统计
     @classmethod
     def count_current_month(cls):
         current_month = str(datetime.now())[:7]
@@ -199,15 +201,25 @@ class Article(db.Model):
         article = Article.query.filter(Article.is_open == 1).all()
         return article
 
+    #是否再次经过编辑
     @classmethod
     def find_edit(cls):
         article = Article.query.filter(Article.is_open == 1, Article.post_date <> Article.timestamp).all()
         return article
 
+    #统计所有博文数量
     @classmethod
     def count_all(cls):
         count = db.session.query(db.func.count(Article.id).label('article_count')).first().article_count
         return count
+
+    # 按类别统计博文数量
+    @classmethod
+    def count_by_category(cls):
+        art = db.session.query(Category.name,
+                               db.func.count(Article.id).label('count')).filter(
+            Category.id == Article.category_id).group_by(Category.name).all()
+        return art
 
 
 whooshalchemy.whoosh_index(blog, Article)
@@ -441,6 +453,7 @@ class Blog_info(db.Model):
     '''访问+1'''
 
     @classmethod
+    @async
     def new_visit(cls, url, agent):
         old = Blog_info.newest_info()
         if old.date == str(datetime.now().date()):
@@ -533,8 +546,3 @@ class Ip_blacklist(db.Model):
         ip = Ip_blacklist.query.filter_by(ipaddr=ip).first()
         return ip
 
-
-class apscheduler_jobs(db.Model):
-    id = db.Column(db.String(255), primary_key=True)
-    next_run_time = db.Column(db.Numeric)
-    job_state = db.Column(db.BLOB)

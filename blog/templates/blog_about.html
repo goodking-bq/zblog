@@ -85,33 +85,67 @@
 
         <h2>YES,I CAN!</h2>
         <hr/>
+        <h3 class="text-center"> 博客访问统计 </h3>
+        <h4 class="text-left"><i style="color: blue">▬</i>访问次数</h4>
+        <h4 class="text-left"><i style="color: red">▬</i>恶意访问次数</h4>
+
         <div style="width: 80%;align-content: center;align-items: center">
-            <canvas id="canvas" height="450" width="1000"></canvas>
+            <canvas id="visit" height="450" width="1000"></canvas>
         </div>
+        <hr/>
+        <h3 class="text-center"> 博文分类统计 </h3>
+
+        <div style="width: 80%;align-content: center;align-items: center">
+            <canvas id="cagetory" height="450" width="1000"></canvas>
+        </div>
+        <a id="labels" style="display: none;">{{ labels }}</a>
+        <a id="data" style="display: none;">{{ visit }}</a>
+        <a id="attack" style="display: none;">{{ attack }}</a>
+        <a id="artdata" style="display: none;">{{ artdata }}</a>
     </div>
 {% endblock %}
 {% block script %}
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap/Chart.js') }}"></script>
     <script>
+        var label = document.getElementById("labels").innerText;
+        var data = document.getElementById("data").innerText;
+        var attack = document.getElementById("attack").innerText;
+        var artdata = document.getElementById("artdata").innerText;
         var barChartData = {
-            labels: ["FLASK", "MYSQL", "FLASK-WTF", "Flask-SQLAlchemy", "Bootstrap", "Flask-Login", "LINUX"],
+            labels: eval(label),
             datasets: [
                 {
-                    fillColor: "rgba(10,187,205,0.5)",
-                    strokeColor: "rgba(10,187,205,0.8)",
+                    label: "a",
+                    fillColor: "rgba(0,0,0,0)",
+                    strokeColor: "blue",
                     highlightFill: "rgba(10,187,205,0.75)",
                     highlightStroke: "rgba(10,187,205,1)",
-                    data: [70, 30, 70, 60, 40, 30, 50]
+                    pointStrokeColor: "rgba(10,187,205,0.1)",
+                    pointHighlightFill: "blue",
+                    pointHighlightStroke: "rgba(220,220,220,1)",
+                    data: eval(data)
+                },
+                {
+                    label: "b",
+                    fillColor: "rgba(0,0,0,0)",
+                    strokeColor: "red",
+                    highlightFill: "rgba(10,187,255,0.75)",
+                    highlightStroke: "rgba(10,187,255,1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "red",
+                    pointHighlightStroke: "red",
+                    data: eval(attack)
                 }
             ]
-
         }
+        var pieData = eval(artdata);
         window.onload = function () {
-            var ctx = document.getElementById("canvas").getContext("2d");
-            window.myBar = new Chart(ctx).Bar(barChartData, {
-                responsive: false
-            });
-        }
+            var ctx = document.getElementById("visit").getContext("2d");
+            var ctx1 = document.getElementById("cagetory").getContext("2d");
+            window.myPie = new Chart(ctx1).Pie(pieData);
+            window.myBar = new Chart(ctx).Line(barChartData);
+        };
     </script>
-
+    <script>
+    </script>
 {% endblock %}
