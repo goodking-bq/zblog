@@ -4,6 +4,8 @@ from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
 from flask.ext.cache import Cache
+from flask.ext.script import Manager
+from flask.ext.migrate import Migrate
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
     MAIL_PASSWORD, LOG_DIR, SQLALCHEMY_DATABASE_URI
 
@@ -19,8 +21,10 @@ lm.login_message = u"请先登录"
 
 cache = Cache(blog)
 
-
-# oid = OpenID(blog, os.path.join(basedir, 'tmp'))
+'''控制台'''
+manager = Manager(blog)
+'''数据库更新'''
+migrate = Migrate(blog, db)
 
 # mail
 from flask.ext.mail import Mail
@@ -30,9 +34,7 @@ mymail = Mail(blog)
 from blog import views, models, Urls, admin, upload, backup
 
 
-
-
-# logs
+'''日志设置'''
 '''
 if not blog.debug:
     import logging
@@ -44,6 +46,7 @@ if not blog.debug:
     mail_handler.setLevel(logging.ERROR)
     blog.logger.addHandler(mail_handler)
 '''
+
 if not blog.debug:
     import logging
     from logging.handlers import RotatingFileHandler

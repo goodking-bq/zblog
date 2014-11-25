@@ -88,6 +88,8 @@
         <h3 class="text-center"> 博客访问统计 </h3>
         <h4 class="text-left"><i style="color: blue">▬</i>访问次数</h4>
         <h4 class="text-left"><i style="color: red">▬</i>恶意访问次数</h4>
+        <h4 class="text-left"><i style="color: #CDC1C5">▬</i>机器人访问次数</h4>
+        <h4 class="text-left"><i style="color: #32CD32">▬</i>真实访问次数</h4>
 
         <div style="width: 80%;align-content: center;align-items: center">
             <canvas id="visit" height="450" width="1000"></canvas>
@@ -102,6 +104,8 @@
         <a id="data" style="display: none;">{{ visit }}</a>
         <a id="attack" style="display: none;">{{ attack }}</a>
         <a id="artdata" style="display: none;">{{ artdata }}</a>
+        <a id="robot" style="display: none;">{{ robot }}</a>
+        <a id="real" style="display: none;">{{ real }}</a>
     </div>
 {% endblock %}
 {% block script %}
@@ -111,6 +115,8 @@
         var data = document.getElementById("data").innerText;
         var attack = document.getElementById("attack").innerText;
         var artdata = document.getElementById("artdata").innerText;
+        var robot = document.getElementById("robot").innerText;
+        var real = document.getElementById("real").innerText;
         var barChartData = {
             labels: eval(label),
             datasets: [
@@ -135,6 +141,28 @@
                     pointHighlightFill: "red",
                     pointHighlightStroke: "red",
                     data: eval(attack)
+                },
+                {
+                    label: "c",
+                    fillColor: "rgba(0,0,0,0)",
+                    strokeColor: "#CDC1C5",
+                    highlightFill: "rgba(10,187,255,0.75)",
+                    highlightStroke: "rgba(10,187,255,1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#CDC1C5",
+                    pointHighlightStroke: "#CDC1C5",
+                    data: eval(robot)
+                },
+                {
+                    label: "d",
+                    fillColor: "rgba(0,0,0,0)",
+                    strokeColor: "#32CD32",
+                    highlightFill: "rgba(10,187,255,0.75)",
+                    highlightStroke: "rgba(10,187,255,1)",
+                    pointStrokeColor: "#fff",
+                    pointHighlightFill: "#32CD32",
+                    pointHighlightStroke: "#32CD32",
+                    data: eval(real)
                 }
             ]
         }

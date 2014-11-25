@@ -7,6 +7,7 @@ from hashlib import md5, sha1
 from base64 import b64encode
 from datetime import datetime
 from config import ROBOT_VISIT, ATTACK_VISIT
+import socket
 
 """ 返回l长度的随机字符串及经过加密的字符串"""
 
@@ -95,3 +96,13 @@ def is_attack(url):
             s = 1
             return s
     return s
+
+
+def dnscheck(ip):
+    try:
+        a = socket.gethostbyaddr(ip)
+        return a
+    except:
+        return False
+
+        # dnscheck('157.55.39.52')

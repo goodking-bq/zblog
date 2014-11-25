@@ -35,8 +35,8 @@ ARTICLES_PER_PAGE = 10
 """随机密码长度"""
 RANDOM_PASSWORD_LENGTH = 5
 """全文搜索数据库"""
-WHOOSH_BASE = os.path.join(basedir, 'search.db')  #路径
-MAX_SEARCH_RESULTS = 50  #搜索最大返回数
+WHOOSH_BASE = os.path.join(basedir, 'search.db')  # 路径
+MAX_SEARCH_RESULTS = 50  # 搜索最大返回数
 
 """上传文件配置"""
 UPLOAD_FOLDER = os.path.join(basedir, 'uploads')
@@ -51,6 +51,13 @@ LOG_DIR = os.path.join(basedir, 'tmp')
 ROBOT_VISIT = set(
     ['Baiduspider', 'JianKongBao', 'DotBot', 'bingbot', 'Googlebot', '360Spider', 'EasouSpider', 'YisouSpider',
      'Sogou web spider'])
+
+ROBOT = {'Baiduspider': 'baidu.com',
+         'bingbot': 'msn.com',
+         'bingbot': 'msn.com',
+         'googlebot': 'googlebot.com',
+         'AhrefsBot': 'ahrefs.com',
+         'Exabot': 'exabot.com'}
 
 """恶意访问关键字"""
 ATTACK_VISIT = set(['php'])

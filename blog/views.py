@@ -81,22 +81,13 @@ def before_request():
     if request.url.find('static') < 0 and request.url.find('favicon.ico') < 0:
         agent = request.headers['User-Agent']
         url = request.base_url
-        Blog_info.new_visit(url=url, agent=agent)
-        if is_attack(url):
-            log = Visit_log(timestamp=datetime.datetime.now(),
-                            ipaddr=request.remote_addr,
-                            visiturl=url,
-                            agent=agent)
-            db.session.add(log)
-            db.session.commit()
-        elif not is_robot(agent):
-            log = Visit_log(timestamp=datetime.datetime.now(),
-                            ipaddr=request.remote_addr,
-                            visiturl=url,
-                            agent=agent)
-            db.session.add(log)
-            db.session.commit()
-
+        # Blog_info.new_visit(url=url, agent=agent)
+        log = Visit_log(timestamp=datetime.datetime.now(),
+                        ipaddr=request.remote_addr,
+                        visiturl=url,
+                        agent=agent)
+        db.session.add(log)
+        db.session.commit()
 
 @login_required
 def usereditinfo():
@@ -248,8 +239,11 @@ def search():
 
 
 def search_result(search, page=1):
-    result = Article.query.whoosh_search(search
-    ).order_by(Article.timestamp.desc()).paginate(page, 5, False)
+    try:
+        result = Article.query.whoosh_search(search).order_by(Article.timestamp.desc()
+        ).paginate(page, 5, False)
+    except:
+        result = None
     category = Category.query.filter_by(is_use=1).order_by(Category.seq)
     return render_template("index.html",
                            title=u'搜索:' + search,
@@ -270,12 +264,21 @@ def blog_about():
     visit = list()
     attack = list()
     artdata = list()
-    redata = Blog_info.query.order_by(Blog_info.date).limit(15)
+    robot = list()
+    real = list()
+    redata = Blog_info.query.order_by(Blog_info.date.desc()).limit(15)
     art = Article.count_by_category()
     for d in redata:
         visit.append(str(d.visit_day))
         attack.append(str(d.visit_attack_day))
         labels.append(str(d.date)[5:])
+        robot.append(str(d.visit_robot_day))
+        real.append(str(d.visit_day - d.visit_attack_day - d.visit_robot_day))
+    labels.reverse()
+    attack.reverse()
+    visit.reverse()
+    robot.reverse()
+    real.reverse()
     for i in range(20 - len(visit)):
         de = datetime.timedelta(days=i + 1)
         labels.append(str(today + de)[5:])
@@ -291,6 +294,8 @@ def blog_about():
                            labels=labels,
                            visit=visit,
                            attack=attack,
+                           robot=robot,
+                           real=real,
                            artdata=json.dumps(artdata))
 
 
@@ -299,7 +304,7 @@ def blog_calendar():
     return render_template('blog_calendor.html')
 
 
-@cache.memoize(unless=True)
+@cache.memoize(unless=True, timeout=60)
 def calendar_json():
     create_article = Article.find_by_month()
     update_article = Article.find_edit()

@@ -181,7 +181,7 @@ class Article(db.Model):
         art = Article.query.order_by(Article.timestamp.desc())
         return art
 
-    #按月统计
+    # 按月统计
     @classmethod
     def count_by_month(cls):
         month_count = db.session.query(Article.months, db.func.count('*').label('num')).group_by(
@@ -361,10 +361,11 @@ class Visit_log(db.Model):
         return count
 
     @classmethod
-    def ip_attack_count(cls):  # 统计ip的恶意访问次数
+    def ip_attack_count(cls, id):  # 统计ip的恶意访问次数
         count = db.session.query(Visit_log.ipaddr, Visit_log.real_addr,
                                  db.func.count(Visit_log.ipaddr).label('count')).filter(
-            Visit_log.visiturl.like('%php%')).all()
+            Visit_log.visiturl.like('%php%'), Visit_log.id <= id).group_by(Visit_log.ipaddr,
+                                                                           Visit_log.real_addr).all()
         return count
 
     @classmethod
@@ -453,7 +454,6 @@ class Blog_info(db.Model):
     '''访问+1'''
 
     @classmethod
-    @async
     def new_visit(cls, url, agent):
         old = Blog_info.newest_info()
         if old.date == str(datetime.now().date()):
@@ -536,13 +536,21 @@ class Ip_blacklist(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     ipaddr = db.Column(db.String(15))
     real_addr = db.Column(db.String(50))
-    visit_count = db.Column(db.Integer)
-    attack_count = db.Column(db.Integer)
-    is_forbid = db.Column(db.Integer)  # 是否禁止访问
+    visit_count = db.Column(db.Integer, default=1)
+    attack_count = db.Column(db.Integer, default=1)
+    is_forbid = db.Column(db.Integer, default=0)  # 是否禁止访问
     forbid_date = db.Column(db.Integer)  # 禁止日期
+    reason = db.Column(db.String(50))  # 原因
 
     @classmethod
     def find_by_ip(cls, ip):
         ip = Ip_blacklist.query.filter_by(ipaddr=ip).first()
         return ip
 
+
+class Robot(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(20))
+    dns_name = db.Column(db.String(20))
+    ip = db.Column(db.String(15))
+    address = db.Column(db.String(50))
