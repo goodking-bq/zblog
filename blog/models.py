@@ -4,8 +4,8 @@ import flask.ext.whooshalchemy as whooshalchemy
 from hashlib import md5
 from config import ARTICLES_PER_PAGE, RANDOM_PASSWORD_LENGTH
 from datetime import datetime
-from blog.extend.StringHelper import realaddr, is_robot, is_attack
 from blog.extend.decorators import async
+from blog.extend.StringHelper import get_ip_location
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -28,7 +28,7 @@ class User(db.Model):
     last_seen = db.Column(db.DateTime)
     register_date = db.Column(db.DateTime)
     register_ip = db.Column(db.String(15))
-
+    salt = db.Column(db.String(32))
 
     def is_authenticated(self):
         return True
@@ -87,21 +87,27 @@ class User(db.Model):
         return count
 
 
-'''用户salt'''
+'''文章类别'''
 
 
-class User_salt(db.Model):
+class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(128))
-    salt = db.Column(db.String(32))
+    name = db.Column(db.String(20), index=True)
+    createdate = db.Column(db.DateTime)
+    article = db.relationship('Article', backref='category', lazy='dynamic')
+    is_use = db.Column(db.Integer, default=IS_USE)
+    seq = db.Column(db.Integer)
+
+    def __repr__(self):
+        return '<Category %r>' % (self.name)
 
     @classmethod
-    def get_salt(cls, email):
-        U = User_salt.query.filter_by(email=email).first()
-        if U:
-            return U.salt
-        else:
-            return None
+    def find_by_name(cls, name):
+        return Category.query.filter(Category.name == name, Category.is_use == 1).first()
+
+    @classmethod
+    def default_seq(cls):
+        return db.session.query(db.func.max(Category.seq).label('seq_max')).first().seq_max + 1
 
 
 '''文章'''
@@ -112,7 +118,7 @@ class Article(db.Model):
     __searchable__ = ['body', 'title']
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100))
+    title = db.Column(db.String(100), index=True)
     body = db.Column(db.Text)
     text = db.Column(db.String(4000))
     tag = db.Column(db.String(50))
@@ -122,7 +128,7 @@ class Article(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
     months = db.Column(db.String(7), default=str(datetime.now())[:7])
-    numLook = db.Column(db.Integer)
+    numlook = db.Column(db.Integer)
 
     def __init__(self, title, body, text, timestamp, user_id, category_id, tag, is_open, numLook=0):
         self.title = title
@@ -133,7 +139,7 @@ class Article(db.Model):
         self.category_id = category_id
         self.tag = tag
         self.is_open = is_open
-        self.numLook = numLook
+        self.numlook = numLook
 
     def __repr__(self):
         return '<Article %r>' % (self.title)
@@ -148,8 +154,7 @@ class Article(db.Model):
     @classmethod
     def find_by_name(self, title, agent):
         art = self.query.filter_by(title=title).first_or_404()
-        if art and not is_robot(agent):
-            art.numLook += 1
+        art.numlook += 1
         return art
 
     # 分类、分月查询
@@ -188,7 +193,7 @@ class Article(db.Model):
             Article.months).order_by(Article.months.desc())
         return month_count
 
-    #当月博文统计
+    # 当月博文统计
     @classmethod
     def count_current_month(cls):
         current_month = str(datetime.now())[:7]
@@ -201,13 +206,13 @@ class Article(db.Model):
         article = Article.query.filter(Article.is_open == 1).all()
         return article
 
-    #是否再次经过编辑
+    # 是否再次经过编辑
     @classmethod
     def find_edit(cls):
         article = Article.query.filter(Article.is_open == 1, Article.post_date <> Article.timestamp).all()
         return article
 
-    #统计所有博文数量
+    # 统计所有博文数量
     @classmethod
     def count_all(cls):
         count = db.session.query(db.func.count(Article.id).label('article_count')).first().article_count
@@ -221,31 +226,13 @@ class Article(db.Model):
             Category.id == Article.category_id).group_by(Category.name).all()
         return art
 
+    # top 5
+    @classmethod
+    def top(cls, num):
+        art = db.session.query(Article).order_by(Article.numlook.desc()).limit(num)
+        return art
 
 whooshalchemy.whoosh_index(blog, Article)
-
-'''文章类别'''
-
-
-class Category(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(20))
-    createdate = db.Column(db.DateTime)
-    articles = db.relationship('Article', backref='category', lazy='dynamic')
-    is_use = db.Column(db.Integer, default=IS_USE)
-    seq = db.Column(db.Integer)
-
-    def __repr__(self):
-        return '<Category %r>' % (self.name)
-
-    @classmethod
-    def find_by_name(cls, name):
-        return Category.query.filter(Category.name == name, Category.is_use == 1).first()
-
-    @classmethod
-    def default_seq(cls):
-        return db.session.query(db.func.max(Category.seq).label('seq_max')).first().seq_max + 1
-
 
 '''上传附件'''
 
@@ -312,60 +299,24 @@ class Settings(db.Model):
 
 
 class Visit_log(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True, index=True)
     timestamp = db.Column(db.DateTime, default=datetime.now())
-    ipaddr = db.Column(db.String(15))
-    visiturl = db.Column(db.String(100))
-    year = db.Column(db.String(4), default=str(datetime.now())[:4])
-    year_month = db.Column(db.String(7), default=str(datetime.now())[:7])
-    year_month_day = db.Column(db.String(10), default=str(datetime.now())[:10])
-    real_addr = db.Column(db.String(50))
+    ip = db.Column(db.String(15))
+    url = db.Column(db.String(100))
     agent = db.Column(db.String(500))
 
     def __repr__(self):
-        return '<Article %r>' % (self.visiturl)
+        return '<URL: %r>' % (self.url)
 
-    def __init__(self, timestamp, ipaddr, visiturl, agent):
+    def __init__(self, timestamp, ip, url, agent):
         self.timestamp = timestamp
-        self.ipaddr = ipaddr
-        self.visiturl = visiturl
-        self.year = str(timestamp)[:4]
-        self.year_month = str(timestamp)[:7]
-        self.year_month_day = str(timestamp)[:10]
-        self.real_addr = realaddr(ipaddr)
+        self.ip = ip
+        self.url = url
         self.agent = agent
 
     @classmethod
     def count_all(cls):  # 访问总量
         count = db.session.query(db.func.count(Visit_log.id).label('visit_all')).first().visit_all
-        return count
-
-    @classmethod
-    def count_by_day(cls):  # 日访问
-        count = Visit_log.query.filter(Visit_log.year_month_day == str(datetime.now())[:10]).count()
-        return count
-
-    @classmethod
-    def count_by_year(cls):  # 年访问
-        count = Visit_log.query.filter(Visit_log.year == datetime.now().year).count()
-        return count
-
-    @classmethod
-    def count_by_ip(cls, ip):  # ip访问量
-        count = Visit_log.query.filter(Visit_log.ipaddr == ip).count()
-        return count
-
-    @classmethod
-    def count_attack(cls):  # 恶意访问量
-        count = Visit_log.query.filter(Visit_log.visiturl.like('%php%')).count()
-        return count
-
-    @classmethod
-    def ip_attack_count(cls, id):  # 统计ip的恶意访问次数
-        count = db.session.query(Visit_log.ipaddr, Visit_log.real_addr,
-                                 db.func.count(Visit_log.ipaddr).label('count')).filter(
-            Visit_log.visiturl.like('%php%'), Visit_log.id <= id).group_by(Visit_log.ipaddr,
-                                                                           Visit_log.real_addr).all()
         return count
 
     @classmethod
@@ -378,21 +329,15 @@ class Visit_log(db.Model):
 
 class Login_log(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(100))
+    email = db.Column(db.String(100), index=True)
     timestamp = db.Column(db.DateTime, default=datetime.now())
-    ipaddr = db.Column(db.String(15))
-    year = db.Column(db.String(4))
-    year_month = db.Column(db.String(7))
-    year_month_day = db.Column(db.String(10))
-    real_addr = db.Column(db.String(50))
+    ip = db.Column(db.String(15))
+    address = db.Column(db.String(50))
 
-    def __init__(self, email, ipaddr):
+    def __init__(self, email, ip):
         self.email = email
-        self.ipaddr = ipaddr
-        self.real_addr = realaddr(ipaddr)
-        self.year = datetime.now().year
-        self.year_month = str(datetime.now())[:7]
-        self.year_month_day = datetime.now().date()
+        self.ip = ip
+        self.address = get_ip_location(ip)
 
     def __str__(self):
         return self.email
@@ -419,7 +364,7 @@ class Backup_log(db.Model):
 
 
 class Blog_info(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.String(10), primary_key=True, index=True)
     visit_all = db.Column(db.Integer)
     visit_day = db.Column(db.Integer)
     visit_month = db.Column(db.Integer)
@@ -431,99 +376,127 @@ class Blog_info(db.Model):
     article_month = db.Column(db.Integer)
     user_all = db.Column(db.Integer)
     login_all = db.Column(db.Integer)
-    date = db.Column(db.String(10))
+
 
     def __init__(self):
         pass
 
-    '''最新的一条记录'''
+    def __repr__(self):
+        return '<Date: %s>' % self.date
+
+    '''根据日期返回记录,没有就新增'''
 
     @classmethod
-    def newest_info(cls):
-        info = Blog_info.query.order_by(Blog_info.id.desc()).first()
+    def get_info_by_day(cls, date):
+        info = Blog_info.query.order_by(Blog_info.date.desc()).first()
+        if not info:
+            info = Blog_info()
+            info.date = date
+            info.visit_all = 0
+            info.visit_day = 0
+            info.visit_month = 0
+            info.visit_attack = 0
+            info.visit_attack_day = 0
+            info.visit_robot = 0
+            info.visit_robot_day = 0
+            info.article_all = 0
+            info.article_month = 0
+            info.user_all = 0
+            info.login_all = 0
+            db.session.add(info)
+            db.session.commit()
+            info = Blog_info.query.filter_by(date=date).first()
+        if info.date != date:
+            new = Blog_info()
+            new.date = date
+            new.visit_day = 0
+            new.visit_attack_day = 0
+            new.visit_robot_day = 0
+            new.visit_all = info.visit_all
+            new.visit_attack = info.visit_attack
+            new.visit_robot = info.visit_robot
+            new.article_all = info.article_all
+            new.user_all = info.user_all
+            new.login_all = info.login_all
+            if info.date[5:7] != date[5:7]:
+                new.visit_month = 0
+                new.article_month = 0
+            else:
+                new.visit_month = info.visit_month
+                new.article_month = info.article_month
+            db.session.add(new)
+            db.session.commit()
+            info = Blog_info.query.filter_by(date=date).first()
         return info
 
-    '''实时信息'''
 
+    '''实时信息'''
     @classmethod
     def info(cls):
-        old = Blog_info.newest_info()
+        old = Blog_info.query.order_by(Blog_info.date.desc()).first()
         old.blog_name = Settings.blog_name()
         return old
 
-    '''访问+1'''
+
+    '''正常访问+1'''
+    @classmethod
+    def new_visit(cls, date):
+        info = Blog_info.get_info_by_day(date)
+        info.visit_day += 1
+        if info.date[5:7] == str(datetime.now().date())[5:7]:
+            info.visit_month += 1
+        else:
+            info.visit_month = 1
+        info.visit_all += 1
+        db.session.add(info)
+        db.session.commit()
+
+
+    '''机器人访问+1'''
+    @classmethod
+    def new_robot_visit(cls, date):
+        info = Blog_info.get_info_by_day(date)
+        info.visit_robot += 1
+        info.visit_robot_day += 1
+        db.session.add(info)
+        db.session.commit()
+
+
+    '''疑似攻击+1'''
 
     @classmethod
-    def new_visit(cls, url, agent):
-        old = Blog_info.newest_info()
-        if old.date == str(datetime.now().date()):
-            old.visit_day += 1
-            if old.date[5:7] == str(datetime.now().date())[5:7]:
-                old.visit_month += 1
-            else:
-                old.visit_month = 1
-            old.visit_all += 1
-            if is_attack(url) == 1:
-                old.visit_attack += 1
-                old.visit_attack_day += 1
-            if is_robot(agent):
-                old.visit_robot += 1
-                old.visit_robot_day += 1
-            db.session.add(old)
-            db.session.commit()
-        else:
-            new = Blog_info()
-            new.date = str(datetime.now().date())
-            new.visit_day = 1
-            new.visit_all = old.visit_all + 1
-            if old.date[5:7] == str(datetime.now().date())[5:7]:
-                new.visit_month = old.visit_month + 1
-                new.article_month = old.article_month
-            else:
-                new.visit_month = 1
-                new.article_month = 0
-            if is_attack(url) == 1:
-                new.visit_attack = old.visit_attack + 1
-                new.visit_attack_day = 1
-            else:
-                new.visit_attack = old.visit_attack
-                new.visit_attack_day = 0
-            if is_robot(agent):
-                new.visit_robot = old.visit_robot + 1
-                new.visit_robot_day = 1
-            else:
-                new.visit_robot = old.visit_robot
-                new.visit_robot_day = 0
-            new.article_all = old.article_all
-            new.login_all = old.login_all
-            new.user_all = old.user_all
-            db.session.add(new)
-            db.session.commit()
+    def new_attack_visit(cls, date):
+        info = Blog_info.get_info_by_day(date)
+        info.visit_attack += 1
+        info.visit_attack_day += 1
+        db.session.add(info)
+        db.session.commit()
+
 
     '''文章+1'''
 
     @classmethod
     def new_article(cls):
-        old = Blog_info.newest_info()
+        old = Blog_info.get_info_by_day(str(datetime.now().date()))
         old.article_all += 1
         old.article_month += 1
         db.session.add(old)
         db.session.commit()
 
-    '''用户+1'''
 
+    '''用户+1'''
     @classmethod
     def new_user(cls):
-        old = Blog_info.newest_info()
+        old = Blog_info.get_info_by_day(str(datetime.now().date()))
         old.user_all += 1
         db.session.add(old)
         db.session.commit()
 
-    '''登陆+1'''
 
+    '''登陆+1'''
     @classmethod
     def new_login(cls):
-        old = Blog_info.newest_info()
+        old = Blog_info.get_info_by_day(str(datetime.now().date()))
         old.login_all += 1
         db.session.add(old)
         db.session.commit()
@@ -533,9 +506,8 @@ class Blog_info(db.Model):
 
 
 class Ip_blacklist(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    ipaddr = db.Column(db.String(15))
-    real_addr = db.Column(db.String(50))
+    ip = db.Column(db.String(15), primary_key=True, index=True)
+    address = db.Column(db.String(50))
     visit_count = db.Column(db.Integer, default=1)
     attack_count = db.Column(db.Integer, default=1)
     is_forbid = db.Column(db.Integer, default=0)  # 是否禁止访问
@@ -544,13 +516,12 @@ class Ip_blacklist(db.Model):
 
     @classmethod
     def find_by_ip(cls, ip):
-        ip = Ip_blacklist.query.filter_by(ipaddr=ip).first()
+        ip = Ip_blacklist.query.filter_by(ip=ip).first()
         return ip
 
 
 class Robot(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
+    ip = db.Column(db.String(15), primary_key=True, index=True)
     name = db.Column(db.String(20))
     dns_name = db.Column(db.String(20))
-    ip = db.Column(db.String(15))
     address = db.Column(db.String(50))

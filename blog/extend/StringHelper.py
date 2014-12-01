@@ -16,27 +16,24 @@ colorstring = '''0123456789ABCDEF'''
 
 
 def make_random_passwd(l, pwd, email):
-    from blog.models import User_salt, User
+    from blog.models import User
     from blog import db
 
-    salt = User_salt()
+    user = User.query.filter_by(email=email).first()
     if pwd == None:
         pwd = ''.join(random.sample(basicstring, l))
-    if salt.get_salt(email) == None:
-        saltstr = ''.join(random.sample(basicstring, 32))
-        salt.email = email
-        salt.salt = saltstr
-        db.session.add(salt)
-        db.session.commit()
+    if user == None:
+        salt = ''.join(random.sample(basicstring, 32))
     else:
-        saltstr = salt.get_salt(email)
-    pwdmd5 = sha1(saltstr + pwd).hexdigest()
+        salt = user.salt
+    pwdmd5 = sha1(salt + pwd).hexdigest()
     for i in range(1, 5):
         pwdmd5 = md5(pwdmd5).hexdigest()
     pwdmd5 = b64encode(pwdmd5)
     return {'pwd': pwd,
             'pwdmd5': pwdmd5,
-            'email': email}
+            'email': email,
+            'salt': salt}
 
 
 def random_color():
@@ -54,7 +51,7 @@ def get_avatar_url(email, size):
 '''返回IP的地理位置'''
 
 
-def realaddr(ip):
+def get_ip_location(ip):
     import urllib2
     import json
 
@@ -70,39 +67,5 @@ def realaddr(ip):
         return u'查询失败'
 
 
-'''
-    机器人访问
-'''
 
 
-def is_robot(agent):
-    s = 0
-    for robot in ROBOT_VISIT:
-        if agent.find(robot) >= 0:
-            s = 1
-            return s
-    return s
-
-
-'''
-    恶意访问判断
-'''
-
-
-def is_attack(url):
-    s = 0
-    for attack in ATTACK_VISIT:
-        if url.find(attack) >= 0:
-            s = 1
-            return s
-    return s
-
-
-def dnscheck(ip):
-    try:
-        a = socket.gethostbyaddr(ip)
-        return a
-    except:
-        return False
-
-        # dnscheck('157.55.39.52')

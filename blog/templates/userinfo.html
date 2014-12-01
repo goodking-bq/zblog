@@ -1,51 +1,53 @@
 <div id="user">
-{% if g.user.is_authenticated() %}
-    <div align="center" >
-        <a href="http://www.gravatar.com/" target="_blank">
-            <img  src="{{g.user.avatar(60)}}" title="点击编辑图像"/>
-        </a>
-    </div>
-    昵称：<a href="{{ url_for('user', nickname = g.user.nickname) }}" style="text-decoration:none" title="点击编辑个人信息">{{g.user.nickname}}</a><br/>
-    <div>关于：{{ g.user.about_me }}</div>
-    最后登录时间：{{ g.user.last_seen }}
-    <div align="right" style="background-color: #2F7A0F">
-        <a href="{{ url_for('user', nickname = g.user.nickname) }}" style="text-decoration:none" title="点击编辑个人信息">
-            <img src="{{url_for('static',filename='img/setup.png')}}"/>
-        </a>
-    </div>
-    <hr/>
+    {% if g.user.is_authenticated() %}
+        <div align="center">
+            <a href="http://www.gravatar.com/" target="_blank">
+                <img src="{{ g.user.avatar(60) }}" title="点击编辑图像"/>
+            </a>
+        </div>
+        昵称：<a href="{{ url_for('user', nickname = g.user.nickname) }}" style="text-decoration:none"
+              title="点击编辑个人信息">{{ g.user.nickname }}</a><br/>
+        <div>关于：{{ g.user.about_me }}</div>
+        最后登录时间：{{ g.user.last_seen }}
+        <div align="right" style="background-color: #2F7A0F">
+            <a href="{{ url_for('user', nickname = g.user.nickname) }}" style="text-decoration:none" title="点击编辑个人信息">
+                <img src="{{ url_for('static',filename='img/setup.png') }}"/>
+            </a>
+        </div>
+        <hr/>
     {% endif %}
     <div>
-    <form style="display: inline;" method="post" name="search" action="{{ url_for('search') }}">
-       {{g.search_form.hidden_tag()}}
-        {{ g.search_form.search(size=30) }}
-        {% for error in g.search_form.errors.search %}
-        <span style="color: red;">[{{error}}]</span>
-        {% endfor %}
-        <hr style="border: none"/>
-        <input type="submit" value=">>搜索本站<<" class="button sertch">
-    </form>
-    <hr/>
-    <h2>>> 每月文章：</h2>
-    <ul style="list-style-type:circle;list-style-position:outside;border: 2px solid #2F7A0F;border-right-style: none;border-left-style: none">
+        <form style="display: inline;" method="post" name="search" action="{{ url_for('search') }}">
+            {{ g.search_form.csrf_token }}
+            {{ g.search_form.search(size=30) }}
+            {% for error in g.search_form.errors.search %}
+                <span style="color: red;">[{{ error }}]</span>
+            {% endfor %}
+            <hr style="border: none"/>
+            <input type="submit" value=">>搜索本站<<" class="button sertch">
+        </form>
+        <hr/>
+        <h2>>> 每月文章：</h2>
+        <ul style="list-style-type:circle;list-style-position:outside;border: 2px solid #2F7A0F;border-right-style: none;border-left-style: none">
             {% for ct in count %}
                 <li style="font-size: 14px;color: #0000FF;font-weight:bold">
-                    <a href="{{ url_for('index', categoryname=categoryname,month=ct.months,page = 1) }}">{{ ct.months }} ( {{ ct.num }} )</a>
+                    <a href="{{ url_for('index', categoryname=categoryname,month=ct.months,page = 1) }}">{{ ct.months }}
+                        ( {{ ct.num }} )</a>
                 </li>
             {% endfor %}
-    </ul>
-    <hr/>
-    <h2>>> 本站统计：</h2>
-    <ul>
-        <li>今日访问：{{ tj.visit_day }}</li>
-        <li>总访问量：{{ tj.visit_all }}</li>
-        <li>日均访问：1111111</li>
-        <li>文章总数：{{ tj.article_all }}</li>
-        <li>留言总数：1111111</li>
-        <li>注册用户：{{ tj.user_all }}</li>
-        <li>登陆次数：{{ tj.visit_day }}</li>
-        <li>开通日期：1111111</li>
-        <li>现在时间：{{ tj.nowtimes }}</li>
-    </ul>
+        </ul>
+        <hr/>
+        <h2>>> 本站统计：</h2>
+        <ul>
+            <li>今日访问：{{ tj.visit_day }}</li>
+            <li>总访问量：{{ tj.visit_all }}</li>
+            <li>日均访问：1111111</li>
+            <li>文章总数：{{ tj.article_all }}</li>
+            <li>留言总数：1111111</li>
+            <li>注册用户：{{ tj.user_all }}</li>
+            <li>登陆次数：{{ tj.visit_day }}</li>
+            <li>开通日期：1111111</li>
+            <li>现在时间：{{ tj.nowtimes }}</li>
+        </ul>
     </div>
 </div>

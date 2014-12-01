@@ -1,8 +1,6 @@
-<!-- extend base layout -->
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>服务器遇到未知错误</h1>
-    <p>请联系管理员！</p>
+    <h1>错误:{{ reason }}</h1>
     <p><a class="button btn-success btn-lg" href="{{ url_for('index') }}">Back</a></p>
 {% endblock %}

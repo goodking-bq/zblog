@@ -3,19 +3,19 @@
 import os
 import datetime
 
-CSRF_ENABLED = False
+CSRF_ENABLED = True
 WTF_CSRF_ENABLED = True
 SECRET_KEY = '120225883@qq.com'
 REMEMBER_COOKIE_DURATION = datetime.timedelta(seconds=30)
 """ session 过期时间 """
 PERMANENT_SESSION_LIFETIME = datetime.timedelta(minutes=5)
-WTF_CSRF_ENABLED = True
 
 """本程序根目录"""
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 """数据库设置"""
-SQLALCHEMY_DATABASE_URI = 'mysql://root:zoushjde@192.168.137.2/blog'
+# SQLALCHEMY_DATABASE_URI = 'mysql://root:zoushj726@www.zousj.cn/blog'
+SQLALCHEMY_DATABASE_URI = 'mysql://root:zoushjde@192.168.137.2/blog3'
 # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'blog.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 

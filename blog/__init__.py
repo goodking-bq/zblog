@@ -6,11 +6,15 @@ from flask.ext.login import LoginManager
 from flask.ext.cache import Cache
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate
+from flask_wtf.csrf import CsrfProtect
 from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
     MAIL_PASSWORD, LOG_DIR, SQLALCHEMY_DATABASE_URI
 
 blog = Flask(__name__)
 blog.config.from_object('config')
+
+csrf = CsrfProtect()
+csrf.init_app(blog)
 
 db = SQLAlchemy(blog)
 

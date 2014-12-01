@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 
-from blog import blog, db, lm, cache
+from blog import blog, db, lm, cache, csrf
 from flask import render_template, flash, redirect, session, url_for, request, g
 from forms import LoginForm, UserEditForm, \
     RegisterForm, ArticleCreateForm, \
@@ -10,8 +10,7 @@ from flask.ext.login import login_user, logout_user, current_user, login_require
 from models import User, Settings, ROLE_USER, User_LOCKED, IS_USE, Article, Category, Visit_log, Blog_info, Login_log
 import datetime
 import json
-# from flask import copy_current_request_context
-from blog.extend.StringHelper import is_robot, is_attack, random_color
+from blog.extend.StringHelper import random_color
 
 
 @blog.route('/', methods=['GET', 'POST'])
@@ -46,7 +45,7 @@ def login():
             login_user(user, remember=remember_me)
             flash(u'恭喜，登录成功！')
             log = Login_log(email=user.email,
-                            ipaddr=request.remote_addr)
+                            ip=request.remote_addr)
             db.session.add(log)
             db.session.commit()
             Blog_info.new_login()
@@ -73,6 +72,7 @@ def before_request():
     g.info = Blog_info.info()
     g.first_bar = Settings.first_bar()
     g.count = Article.count_by_month()
+    g.top_five = Article.top(10)
     if g.user.is_authenticated():
         g.user.last_seen = datetime.datetime.now()
         db.session.add(g.user)
@@ -81,13 +81,13 @@ def before_request():
     if request.url.find('static') < 0 and request.url.find('favicon.ico') < 0:
         agent = request.headers['User-Agent']
         url = request.base_url
-        # Blog_info.new_visit(url=url, agent=agent)
         log = Visit_log(timestamp=datetime.datetime.now(),
-                        ipaddr=request.remote_addr,
-                        visiturl=url,
+                        ip=request.remote_addr,
+                        url=url,
                         agent=agent)
         db.session.add(log)
         db.session.commit()
+
 
 @login_required
 def usereditinfo():
@@ -130,6 +130,11 @@ def internal_error(error):
     return render_template('404.html'), 404
 
 
+@csrf.error_handler
+def csrf_error(reason):
+    return render_template('csrf_error.html', reason=reason), 400
+
+
 @blog.errorhandler(500)
 def internal_error(error):
     db.session.rollback()
@@ -148,7 +153,8 @@ def register():
                     nicename=form.email.data,
                     passwd=pwd['pwdmd5'],
                     is_locked=User_LOCKED,
-                    register_ip=request.remote_addr)
+                    register_ip=request.remote_addr,
+                    salt=pwd['salt'])
         user.register_date = datetime.datetime.now(),
         db.session.add(user)
         db.session.commit()
@@ -174,7 +180,7 @@ def article_show(title):
 
 @login_required
 def article_create():
-    form = ArticleCreateForm(request.form, g.user.id)
+    form = ArticleCreateForm()
     if request.method == 'POST' and form.validate():
         if not g.user.is_admin():
             flash(u'非管理员不能创建文章！')
@@ -203,9 +209,9 @@ def article_create():
 
 @login_required
 def article_edit(id):
-    form = ArticleEditForm(request.form)
+    form = ArticleEditForm()
     article = Article.find_by_id(int(id))
-    if form.validate_on_submit():
+    if form.validate_on_submit() and request.method == 'POST':
         if not g.user.is_admin():
             flash(u'非管理员不能编辑文章！')
             return redirect(url_for('index'))

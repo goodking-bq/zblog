@@ -7,4 +7,7 @@
     <div id="uyan_frame" class="container"></div>
     <script type="text/javascript" src="http://v2.uyan.cc/code/uyan.js?uid=1972001"></script>
     </span>
+    <form method="post" action="/">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    </form>
 {% endblock %}

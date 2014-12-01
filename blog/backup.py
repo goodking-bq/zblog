@@ -6,7 +6,7 @@ from config import BACKUP_DIR, SQLALCHEMY_DATABASE_URI as dburl, UPLOAD_FOLDER
 from flask import render_template, redirect, url_for, g
 from flask.ext.login import login_required
 from blog import db
-from time import time
+import time
 import os
 from datetime import datetime
 import subprocess
@@ -22,20 +22,34 @@ db_pwd = dburl[:dburl.find('@')]
 dburl = dburl[dburl.find('@') + 1:]
 db_host = dburl[:dburl.find('/')]
 db_name = dburl[dburl.find('/') + 1:]
-sql_dir = os.path.join(BACKUP_DIR, str(time()) + '.sql')
-back_script = 'mysqldump –u' + db_user + ' –p' + db_pwd + ' –lock-all-tables ' + db_name + ' > ' + sql_dir
-back_file = os.path.join(BACKUP_DIR, str(time()) + '.zip')
 global msg
 msg = '<hr/>'
 
 
 @login_required
 def dobackup():
+    sql_dir = os.path.join(BACKUP_DIR, format_time() + '.sql')
+    back_script = 'mysqldump -u' + db_user + ' -p' + db_pwd + ' -h' + db_host + ' ' + db_name + ' > ' + sql_dir
+    back_file = os.path.join(BACKUP_DIR, format_time() + '.zip')
+    print back_script
     if g.user.is_admin():
         start_time = datetime.now()
         global msg
         msg = msg + str(start_time) + ' -> ' + u'此次备份开始' + '<br/>'
-        zip_file(UPLOAD_FOLDER)  # 压缩上传的附件
+        zip_file(UPLOAD_FOLDER, back_file, sql_dir)  # 压缩上传的附件
+        backupdb(back_script)
+        t = 10
+        while t >= 0:
+            msg = msg + str(datetime.now()) + ' -> ' + u'等待数据库备份完成' + '<br/>'
+            time.sleep(1)
+            if os.path.exists(sql_dir):
+                t = -1
+            else:
+                t -= 1
+        if os.path.exists(sql_dir):
+            msg = msg + str(datetime.now()) + ' -> ' + u'数据库备份完成。文件：' + sql_dir + '<br/>'
+        else:
+            msg = msg + str(datetime.now()) + ' -> ' + u'数据库备份失败。找不到文件：' + sql_dir + '<br/>'
         msg = msg + str(datetime.now()) + ' -> ' + u'添加数据库备份到压缩文件' + '<br/>'
         zf = zipfile.ZipFile(back_file, "a", zipfile.zlib.DEFLATED)
         zf.write(sql_dir)
@@ -57,7 +71,7 @@ def dobackup():
         return redirect(url_for('index1'))
 
 
-def zip_file(dirname):  # 压缩文件夹
+def zip_file(dirname, back_file, sql_dir):  # 压缩文件夹
     global msg
     filelist = []
     msg = msg + str(datetime.now()) + ' -> ' + u'加载需要压缩的上传文件' + '<br/>'
@@ -75,6 +89,19 @@ def zip_file(dirname):  # 压缩文件夹
         msg = msg + str(datetime.now()) + ' -> ' + arcname + u' 已写入文件 ' + back_file + '<br/>'
     zf.close()
     msg = msg + str(datetime.now()) + ' -> ' + u'上传文件压缩完毕' + '<br/>'
+
+
+def backupdb(back_script):
+    global msg
+    msg = msg + str(datetime.now()) + ' -> ' + u'正在备份数据库...' + '<br/>'
+    subprocess.Popen(back_script, shell=True,
+                     stdout=subprocess.PIPE,
+                     stderr=subprocess.PIPE)
+
+
+def format_time():
+    return 'backup_' + str(time.mktime(time.strptime(str(datetime.now())[:19],
+                                                     "%Y-%m-%d %H:%M:%S")))[:10]
 
 
 @login_required

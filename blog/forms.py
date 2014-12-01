@@ -55,12 +55,16 @@ class ArticleCreateForm(Form):
     title = TextField('article title', [Required(u'请输入标题！')])
     body = TextAreaField('article body',
                          [Required(u'文章内容不能为空！')], id='mceEditor')
-    category_id = SelectField('category id',
-                              choices=[(c.id, c.name) for c in
-                                       Category.query.filter_by(is_use=1).order_by(Category.seq)],
-                              coerce=int)
+    category_id = SelectField('category id')
     tag = TextField('tag', [Length(max=20)])
     is_open = SelectField('is_open', choices=[(0, u'不公开'), (1, u'公开')], coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+        self.category_id.choices = [(c.id, c.name) for c in
+                                    Category.query.filter_by(is_use=1).order_by(Category.seq)]
+        self.category_id.coerce = int
+        self.category_id.default = None
 
     def validate(self):
         if not Form.validate(self):
@@ -76,12 +80,15 @@ class ArticleEditForm(Form):
     title = TextField('article title', [Required(u'请输入标题！')])
     body = TextAreaField('article body',
                          [Required(u'文章内容不能为空！')], id='mceEditor')
-    category_id = SelectField('category id',
-                              choices=[(c.id, c.name) for c in
-                                       Category.query.filter_by(is_use=1).order_by(Category.seq)],
-                              coerce=int)
+    category_id = SelectField('category id')
     tag = TextField('tag', [Length(max=20)])
     is_open = SelectField('is_open', choices=[(0, u'不公开'), (1, u'公开')], coerce=int)
+
+    def __init__(self, *args, **kwargs):
+        Form.__init__(self, *args, **kwargs)
+        self.category_id.choices = [(c.id, c.name) for c in
+                                    Category.query.filter_by(is_use=1).order_by(Category.seq)]
+        self.category_id.coerce = int
 
 
 class CategoryForm(Form):

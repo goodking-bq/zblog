@@ -63,7 +63,7 @@
                         标签:<a href="#"> {{ art.tag }} </a>
 
                         <div class="pull-right">
-                            访问次数：<span class="badge"><small class="h6">{{ art.numLook }}</small></span>
+                            访问次数：<span class="badge"><small class="h6">{{ art.numlook }}</small></span>
                             最后编辑于：{{ art.timestamp }}
                         </div>
                     </div>
@@ -119,6 +119,20 @@
                         </div>
                     </div>
                 {% endif %}
+                <div class="col-md-12">
+                    <div class="panel panel-success">
+                        <div class="panel-heading">阅读排行：</div>
+                        <div class="panel-body text-left">
+                            {% for art in g.top_five %}
+                                <span class="glyphicon glyphicon-circle-arrow-right"></span>&nbsp
+                                <a href="{{ url_for('article_show', title=art.title) }}">
+                                    {{ art.title[:12] }}&nbsp&nbsp <span
+                                        class="badge pull-right"> {{ art.numlook }}</span>
+                                </a><br/>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
                 {% cache 10 %}
                     <div class="col-md-12">
                         <div class="panel panel-success">
@@ -127,7 +141,7 @@
                                 {% for ct in g.count %}
                                     <span class="glyphicon glyphicon-circle-arrow-right"></span>&nbsp
                                     <a href="{{ url_for('index', categoryname=categoryname,month=ct.months,page = 1) }}">
-                                        {{ ct.months }}&nbsp&nbsp <span class="badge"> {{ ct.num }}</span>
+                                        {{ ct.months }}&nbsp&nbsp <span class="badge pull-right"> {{ ct.num }}</span>
                                     </a><br/>
                                 {% endfor %}
                             </div>
@@ -147,30 +161,32 @@
                         <div class="panel panel-default">
                             <div class="panel-heading">本站统计：</div>
                             <div class="panel-body text-left">
-                                <span class="glyphicon glyphicon-circle-arrow-right"></span> 日访问量：{{ g.info.visit_day }}
+                                <span class="glyphicon glyphicon-circle-arrow-right"></span>
+                                日访问量：<span class=" pull-right">{{ g.info.visit_day }}</span>
                                 <br/>
                                 <span class="glyphicon glyphicon-circle-arrow-right"></span>
-                                月访问量：{{ g.info.visit_month }}
-                                <br/>
-                                <span class="glyphicon glyphicon-circle-arrow-right"></span> 总访问量：{{ g.info.visit_all }}
+                                月访问量：<span class=" pull-right">{{ g.info.visit_month }}</span>
                                 <br/>
                                 <span class="glyphicon glyphicon-circle-arrow-right"></span>
-                                文章总数：{{ g.info.article_all }}
+                                总访问量：<span class=" pull-right">{{ g.info.visit_all }}</span>
                                 <br/>
                                 <span class="glyphicon glyphicon-circle-arrow-right"></span>
-                                本月新增：{{ g.info.article_month }}
-                                <br/>
-                                <span class="glyphicon glyphicon-circle-arrow-right"></span> 用户数量：{{ g.info.user_all }}
-                                <br/>
-                                <span class="glyphicon glyphicon-circle-arrow-right"></span> 登陆次数：{{ g.info.login_all }}
-                                <br/>
-                                <span class="glyphicon glyphicon-circle-arrow-right"></span> 总访问量：{{ g.info.visit_all }}
+                                文章总数：<span class=" pull-right">{{ g.info.article_all }}</span>
                                 <br/>
                                 <span class="glyphicon glyphicon-circle-arrow-right"></span>
-                                恶意访问：{{ g.info.visit_attack }}
+                                本月新增：<span class=" pull-right">{{ g.info.article_month }}</span>
                                 <br/>
                                 <span class="glyphicon glyphicon-circle-arrow-right"></span>
-                                爬虫访问：{{ g.info.visit_robot }}
+                                用户数量：<span class=" pull-right">{{ g.info.user_all }}</span>
+                                <br/>
+                                <span class="glyphicon glyphicon-circle-arrow-right"></span>
+                                登陆次数：<span class=" pull-right">{{ g.info.login_all }}</span>
+                                <br/>
+                                <span class="glyphicon glyphicon-circle-arrow-right"></span>
+                                恶意访问：<span class=" pull-right">{{ g.info.visit_attack }}</span>
+                                <br/>
+                                <span class="glyphicon glyphicon-circle-arrow-right"></span>
+                                爬虫访问：<span class="pull-right">{{ g.info.visit_robot }}</span>
                                 <br/>
                             </div>
                         </div>

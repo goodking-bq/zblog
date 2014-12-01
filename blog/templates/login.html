@@ -7,7 +7,7 @@
 {% block content %}
     <div class="container">
         <form class="form-signin form-group" action="" method="post" role="from">
-            {{form.hidden_tag()}}
+            {{ form.csrf_token }}
             <div class="input-group form-group has-success has-feedback">
                 <label class="control-label sr-only" for="emailipt">Input email</label>
                 {{ form.email(size=50,class="form-control") }}

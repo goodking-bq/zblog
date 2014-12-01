@@ -9,6 +9,9 @@
 {% endblock %}
 {% block content %}
     <div id='calendar' style="max-width: 80%;margin: 0 auto;max-height: 100%"></div>
+    <form method="post" action="/">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    </form>
 {% endblock %}
 {% block script %}
     <script type="text/javascript"

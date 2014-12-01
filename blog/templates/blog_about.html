@@ -107,6 +107,9 @@
         <a id="robot" style="display: none;">{{ robot }}</a>
         <a id="real" style="display: none;">{{ real }}</a>
     </div>
+    <form method="post" action="/">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+    </form>
 {% endblock %}
 {% block script %}
     <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap/Chart.js') }}"></script>

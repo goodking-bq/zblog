@@ -4,18 +4,19 @@ __author__ = 'good'
 __create__ = '2014-11-23'
 
 from blog.models import Article, Visit_log, Blog_info, User, Login_log, Ip_blacklist, Robot
-from blog import db, manager
+from blog import db
 import datetime
 from flask.ext.script import Manager, prompt_bool
 from config import ROBOT
+from blog.extend.StringHelper import get_ip_location
+import socket
+
+LogManager = Manager(usage='处理访问日志')
 
 
-LogManager = Manager(usage=u'处理访问日志')
-
-
-@LogManager.option('-i', '--id', help=u'清理的最大ID')
+@LogManager.option('-i', '--id', help='清理的最大ID')
 def clean(id=None):
-    u"清理日志,max_id默认清理所有"
+    "清理日志,max_id默认清理所有"
     if id == None:
         id = db.session.query(db.func.max(Visit_log.id).label('max_id')).first().max_id
     visit_statistics(id)
@@ -33,15 +34,18 @@ def visit_statistics(max_id):
     logs = db.session.query(Visit_log).filter(Visit_log.id <= max_id).all()
     if logs:
         for log in logs:
+            log.date = str(log.timestamp)[:10]
             if not robot(log):
-                php_url(log)
+                if not php_url(log):
+                    Blog_info.new_visit(log.date)
     else:
         print u'%s -> 没有需要归档的黑名单数据' % datetime.datetime.now()
 
 
 def php_url(log):
-    if log.visiturl.find('php') >= 0:
+    if log.url.find('php') >= 0:
         alter_ip_blacklist(log, u'访问带有PHP的链接')
+        Blog_info.new_attack_visit(log.date)
         return True
     return False
 
@@ -50,29 +54,34 @@ def php_url(log):
 
 
 def robot(log):
-    import socket
-
-    r = is_robot(log.ipaddr, log.agent)
-    if r and r <> 1:
+    r = is_robot(log.ip, log.agent)
+    if r == 1:
+        Blog_info.new_robot_visit(log.date)
+    elif r and r != 1:
         try:
-            a = socket.gethostbyaddr(log.ipaddr)
+            a = socket.gethostbyaddr(log.ip)
             v = ROBOT.get(r)
             if a[0].find(v) >= 0:
-                print u'%s -> 新增机器人 IP ----- %s' % (datetime.datetime.now(), log.ipaddr)
+                print u'%s -> 新增机器人 IP ----- %s' % (datetime.datetime.now(), log.ip)
                 rob = Robot(name=r,
                             dns_name=v,
-                            ip=log.ipaddr,
-                            address=log.real_addr
+                            ip=log.ip,
+                            address=get_ip_location(log.ip)
                 )
                 db.session.add(rob)
                 db.commit()
+                Blog_info.new_robot_visit(log.date)  #
                 return True
             else:
-                alter_ip_blacklist(log.ipaddr, log.real_addr, u'爬虫欺骗访问')
+                alter_ip_blacklist(log, u'爬虫欺骗访问')
+                Blog_info.new_attack_visit(log.date)
                 return False
         except:
-            alter_ip_blacklist(log.ipaddr, log.real_addr, u'爬虫欺骗访问')
+            alter_ip_blacklist(log, u'爬虫欺骗访问')
+            Blog_info.new_attack_visit(log.date)
             return False
+    else:
+        return False
 
 
 """判断是否机器人访问"""
@@ -86,18 +95,21 @@ def is_robot(ip, agent):
         for r in ROBOT.keys():
             if agent.find(r) >= 0:
                 return r
+            else:
+                return False
 
 
 def alter_ip_blacklist(log, reason):
-    ip = Ip_blacklist.find_by_ip(log.ipaddr)
+    ip = Ip_blacklist.find_by_ip(log.ip)
+    Blog_info.new_attack_visit(log.date)
     if ip:
-        print u'%s -> 更新记录 IP ----- %s ，原因 ----- %s' % (datetime.datetime.now(), log.ipaddr, reason)
+        print u'%s -> 更新记录 IP ----- %s ，原因 ----- %s' % (datetime.datetime.now(), log.ip, reason)
         ip.visit_count += 1
         ip.attack_count += 1
     else:
-        print u'%s -> 新增记录 IP ----- %s ，原因 ----- %s' % (datetime.datetime.now(), log.ipaddr, reason)
-        ip = Ip_blacklist(ipaddr=log.ipaddr,
-                          real_addr=log.real_addr,
+        print u'%s -> 新增记录 IP ----- %s ，原因 ----- %s' % (datetime.datetime.now(), log.ip, reason)
+        ip = Ip_blacklist(ip=log.ip,
+                          address=get_ip_location(log.ip),
                           attack_count=0,
                           is_forbid=0,
                           reason=reason
@@ -109,7 +121,7 @@ def alter_ip_blacklist(log, reason):
 
 @LogManager.command
 def count():
-    u'统计日志条数'
+    '统计日志条数'
     c = Visit_log.count_all()
     print u'共有访问日志%s条' % c
 
