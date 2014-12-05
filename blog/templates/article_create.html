@@ -17,6 +17,9 @@
                     <div class="input-group ">
                         <span class="input-group-addon">类&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp别</span>
                         {{ form.category_id(class="form-control",placeholder="--选择--") }}
+                        {% for error in form.errors.category_id %}
+                            <span style="color: red;">{{ error }}</span>
+                        {% endfor %}
                     </div>
                 </div>
             </div>

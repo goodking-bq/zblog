@@ -1,6 +1,5 @@
-{% extends "base.html" %}
 
 {% block content %}
-    <h1>错误:{{ reason }}</h1>
+    <h1>csrf错误:{{ reason }}</h1>
     <p><a class="button btn-success btn-lg" href="{{ url_for('index') }}">Back</a></p>
 {% endblock %}

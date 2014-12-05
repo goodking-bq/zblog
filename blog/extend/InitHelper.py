@@ -34,7 +34,7 @@ def evn():
     '初始化运行环境'
     from subprocess import Popen
 
-    Popen('python /root/zblog/setup.py install', shell=True)
+    Popen('python /root/zblog/setup.py install', shell=True).wait()
     print '初始化运行环境...[确定]'
 
 

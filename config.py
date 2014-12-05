@@ -15,7 +15,7 @@ basedir = os.path.abspath(os.path.dirname(__file__))
 
 """数据库设置"""
 # SQLALCHEMY_DATABASE_URI = 'mysql://root:zoushj726@www.zousj.cn/blog'
-SQLALCHEMY_DATABASE_URI = 'mysql://root:zoushjde@192.168.137.2/blog3'
+SQLALCHEMY_DATABASE_URI = 'mysql://root:zoushjde@192.168.137.2/blog'
 # SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'blog.db')
 SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 

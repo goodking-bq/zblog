@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 __author__ = 'good'
 
-from blog import db, lm
+from blog import db, lm, csrf
 from werkzeug.utils import secure_filename
 from flask import request, send_from_directory, g, flash, redirect, url_for
 from flask.ext.login import login_required
@@ -22,6 +22,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
 
 
+@csrf.exempt
 @login_required
 def upload():
     if request.method == 'POST':

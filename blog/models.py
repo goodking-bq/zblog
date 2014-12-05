@@ -109,7 +109,11 @@ class Category(db.Model):
     def default_seq(cls):
         return db.session.query(db.func.max(Category.seq).label('seq_max')).first().seq_max + 1
 
-
+    @classmethod
+    def choices(cls):
+        choice = [(c.id, c.name) for c in
+                  Category.query.filter_by(is_use=1).order_by(Category.seq)]
+        return choice
 '''文章'''
 
 

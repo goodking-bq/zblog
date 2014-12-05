@@ -178,9 +178,11 @@ def article_show(title):
                            article=article)
 
 
+@csrf.exempt
 @login_required
 def article_create():
     form = ArticleCreateForm()
+    form.category_id.choices = Category.choices()
     if request.method == 'POST' and form.validate():
         if not g.user.is_admin():
             flash(u'非管理员不能创建文章！')
@@ -210,6 +212,7 @@ def article_create():
 @login_required
 def article_edit(id):
     form = ArticleEditForm()
+    form.category_id.choices = Category.choices()
     article = Article.find_by_id(int(id))
     if form.validate_on_submit() and request.method == 'POST':
         if not g.user.is_admin():
