@@ -4,7 +4,6 @@ import flask.ext.whooshalchemy as whooshalchemy
 from hashlib import md5
 from config import ARTICLES_PER_PAGE, RANDOM_PASSWORD_LENGTH
 from datetime import datetime
-from blog.extend.decorators import async
 from blog.extend.StringHelper import get_ip_location
 
 ROLE_USER = 0
@@ -103,7 +102,7 @@ class Category(db.Model):
 
     @classmethod
     def find_by_name(cls, name):
-        return Category.query.filter(Category.name == name, Category.is_use == 1).first()
+        return Category.query.filter(Category.name == name, Category.is_use == 1).first_or_404()
 
     @classmethod
     def default_seq(cls):
@@ -114,6 +113,8 @@ class Category(db.Model):
         choice = [(c.id, c.name) for c in
                   Category.query.filter_by(is_use=1).order_by(Category.seq)]
         return choice
+
+
 '''文章'''
 
 
@@ -163,26 +164,27 @@ class Article(db.Model):
 
     # 分类、分月查询
     @classmethod
-    def article_per_page(cls, name, month, page, pagenum=ARTICLES_PER_PAGE):
+    def article_per_page(cls, name, month, page=1):
         if name == 'all' and month == 'all':
             art = Article.query.filter_by(is_open=1).order_by(Article.timestamp.desc())
-            return art.paginate(page, pagenum, False)
+            return art.paginate(page, ARTICLES_PER_PAGE, False)
         elif month == 'all' and name <> 'all':
             cg = Category.find_by_name(name)
-            if cg:
-                art = Article.query.filter(Article.category_id == cg.id, Article.is_open == 1).order_by(
-                    Article.timestamp.desc())
-                return art.paginate(page, pagenum, False)
+            art = Article.query.filter(Article.category_id == cg.id, Article.is_open == 1).order_by(
+                Article.timestamp.desc())
+            return art.paginate(page, ARTICLES_PER_PAGE, False)
         elif month <> 'all' and name == 'all':
             art = Article.query.filter(Article.months == month, Article.is_open == 1).order_by(Article.timestamp.desc())
-            return art.paginate(page, pagenum, False)
+            if art is not None:
+                return art.paginate(page, ARTICLES_PER_PAGE, False)
         elif month <> 'all' and name <> 'all':
             cg = Category.find_by_name(name)
-            if cg:
-                art = Article.query.filter(Article.months == month, Article.category_id == cg.id,
-                                           Article.is_open == 1).order_by(
-                    Article.timestamp.desc())
-                return art.paginate(page, pagenum, False)
+            art = Article.query.filter(Article.months == month, Article.category_id == cg.id,
+                                       Article.is_open == 1).order_by(
+                Article.timestamp.desc())
+            return art.paginate(page, ARTICLES_PER_PAGE, False)
+        else:
+            return None
 
     # 所有博文，最后编辑时间倒序
     @classmethod
@@ -206,9 +208,13 @@ class Article(db.Model):
         return count
 
     @classmethod
-    def find_by_month(cls):
-        article = Article.query.filter(Article.is_open == 1).all()
-        return article
+    def search(cls, st, page=1, num=ARTICLES_PER_PAGE):
+        from sqlalchemy.sql import or_
+
+        article = Article.query.filter(
+            or_(Article.title.like('%' + st + '%'), Article.body.like('%' + st + '%'))).order_by(
+            Article.timestamp.desc())
+        return article.paginate(page, num, False)
 
     # 是否再次经过编辑
     @classmethod
@@ -235,6 +241,8 @@ class Article(db.Model):
     def top(cls, num):
         art = db.session.query(Article).order_by(Article.numlook.desc()).limit(num)
         return art
+
+        # 本月新建
 
 whooshalchemy.whoosh_index(blog, Article)
 
@@ -410,7 +418,7 @@ class Blog_info(db.Model):
             db.session.add(info)
             db.session.commit()
             info = Blog_info.query.filter_by(date=date).first()
-        if info.date != date:
+        elif info.date > date:
             new = Blog_info()
             new.date = date
             new.visit_day = 0
@@ -431,10 +439,13 @@ class Blog_info(db.Model):
             db.session.add(new)
             db.session.commit()
             info = Blog_info.query.filter_by(date=date).first()
+        elif info.date < date:
+            info = Blog_info.query.filter_by(date=date).first()
         return info
 
 
     '''实时信息'''
+
     @classmethod
     def info(cls):
         old = Blog_info.query.order_by(Blog_info.date.desc()).first()
@@ -443,6 +454,7 @@ class Blog_info(db.Model):
 
 
     '''正常访问+1'''
+
     @classmethod
     def new_visit(cls, date):
         info = Blog_info.get_info_by_day(date)
@@ -457,6 +469,7 @@ class Blog_info(db.Model):
 
 
     '''机器人访问+1'''
+
     @classmethod
     def new_robot_visit(cls, date):
         info = Blog_info.get_info_by_day(date)
@@ -489,6 +502,7 @@ class Blog_info(db.Model):
 
 
     '''用户+1'''
+
     @classmethod
     def new_user(cls):
         old = Blog_info.get_info_by_day(str(datetime.now().date()))
@@ -498,6 +512,7 @@ class Blog_info(db.Model):
 
 
     '''登陆+1'''
+
     @classmethod
     def new_login(cls):
         old = Blog_info.get_info_by_day(str(datetime.now().date()))

@@ -1,4 +1,4 @@
-<html lang="zh">
+<html lang="zh" xmlns:wb="http://open.weibo.com/wb">
 <link href="{{ url_for('static',filename='css/bootstrap/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
 <link href="{{ url_for('static',filename='css/bootstrap/bootstrap-responsive.min.css') }}" rel="stylesheet"
       type="text/css">
@@ -14,7 +14,7 @@
 {% endblock %}
 <head>
     <meta name="uyan_auth" content="a8ec133338"/>
-    <link rel="shortcut icon" type="image/ico" href="{{ url_for('static',filename='favicon.ico') }}">
+    <link rel="shortcut icon" type="image/ico" href="{{ url_for('static',filename='/images/favicon.ico') }}">
     {% if title %}
         <title>
             {{ g.info.blog_name }}-{{ title }}
@@ -31,7 +31,29 @@
 {% endblock %}
 {% block content %}
 {% endblock %}
-{% include 'footer.html' %}
+{% block footer %}
+    <hr class="ke-hr"/>
+    <footer class="alert modal-footer" style="text-align: center">
+        链接：|
+        <a target="_blank" href="http://www.pythondoc.com/pythontutorial27/index.html" class="alert-link">Python</a>|
+        <a target="_blank" href="http://dormousehole.readthedocs.org/en/latest/" class="alert-link">Flask</a>|
+        <a target="_blank" href="http://www.sqlalchemy.org/" class="alert-link">sqlalchemy</a>|
+        <a target="_blank" href="http://getbootstrap.com/" class="alert-link">Bootstrap</a>|
+        <a target="_blank" href="http://glyphicons.com/" class="alert-link">Glyphicons </a>|
+        <a target="_blank" href="http://zousj.cn" class="alert-link">Zousj.cn </a><br/>
+        联系作者：
+        <a target="_blank" href="http://wpa.qq.com/msgrd?v=3&uin=874756674&site=qq&menu=yes"><img border="0"
+                                                                                                  src="http://wpa.qq.com/pa?p=2:120225883:51"
+                                                                                                  alt="点击这里给我发消息"
+                                                                                                  title="点击这里给我发消息"/></a>
+        |
+        <a target="_blank" href="http://mail.qq.com/cgi-bin/qm_share?t=qm_mailme&email=uoKNjo2PjIyNjvrLy5TZ1dc"
+           style="text-decoration:none;"><img
+                src="http://rescdn.qqmail.com/zh_CN/htmledition/images/function/qm_open/ico_mailme_01.png"/></a><br/>
+        <strong class="text-success">Copyright 2014 by gooken</strong>
+
+    </footer>
+{% endblock %}
 {% include 'script.html' %}
 {% block script %}
 {% endblock %}

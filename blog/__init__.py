@@ -7,8 +7,8 @@ from flask.ext.cache import Cache
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate
 from flask_wtf.csrf import CsrfProtect
-from config import basedir, ADMINS, MAIL_SERVER, MAIL_PORT, MAIL_USERNAME, \
-    MAIL_PASSWORD, LOG_DIR, SQLALCHEMY_DATABASE_URI
+from flask_oauthlib.client import OAuth
+from config import LOG_DIR
 
 blog = Flask(__name__)
 blog.config.from_object('config')
@@ -24,6 +24,8 @@ lm.login_view = 'login'
 lm.login_message = u"请先登录"
 
 cache = Cache(blog)
+
+oauth = OAuth(blog)
 
 '''控制台'''
 manager = Manager(blog)

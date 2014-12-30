@@ -1,74 +1,84 @@
 {% extends "base.html" %}
-{% block base_css %}
-    <link href="{{ url_for('static',filename='css/base.css') }}" rel="stylesheet" type="text/css">
-
-{% endblock %}
-{% block categorybar %}
-    <div class="categorybar">
-        <ul>
-            &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp搜索结果：
-        </ul>
-    </div>
+{% block list_bar %}
+    <nav class="navbar container  bg-success" role="navigation">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand text-danger">搜索结果：</a>
+        </div>
+        <div class="collapse navbar-collapse">
+            <form class="nav navbar-nav navbar-form navbar-right" action="{{ url_for('search') }}" method="POST"
+                  role="search">
+                {{ g.search_form.hidden_tag() }}
+                <div class="form-group">
+                    {{ g.search_form.search(class="form-control " ,placeholder="搜索本站") }}
+                </div>
+                <button type="submit" class="btn btn-warning "><span class="glyphicon glyphicon-search"></span>搜索
+                </button>
+            </form>
+        </div>
+    </nav>
+    <br/>
 {% endblock %}
 {% block content %}
-    <div class="bodys">
-        <div id="center">
-            <div id="article">
-                {% for post in article.items %}
-                    <div id="title">
-                        <div style="float:left;">
-                            <a href="{{ url_for("article_show",title=post.title) }}">
-                                &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp{{ post.title }}
-                            </a>
+    <div class=" container center-block">
+        <div class="container-fluid">
+            {% for art in article.items %}
+                <div class="jumbotron">
+
+                    {% if g.user.is_authenticated() and g.user.is_admin() %}
+                        <a class="btn-round btn btn-lg" data-trigger="tooltip" data-content="编辑此文"
+                           data-position="e"
+                           title="点击编辑"
+                           href="{{ url_for('article_edit',id=art.id) }}"><h2>{{ art.title }}</h2></a>
+                    {% else %}
+                        <h2>{{ art.title }}</h2>
+                    {% endif %}
+                    <p>{{ art.text[:300]+'...' }}</p>
+
+                    <div class="text-left ">
+                        <p><a class="btn btn-primary btn-lg" role="button"
+                              href="{{ url_for('article_show',title=art.title) }}">
+                            学习更多</a>
+                        </p>
+                        标签:
+                        {% for t in art.tag.split(' ') %}
+                            <a href="{{ url_for('search_result', sch=t, page=1) }}"> {{ t }} </a>
+                        {% endfor %}
+                        <div class="pull-right">
+                            访问次数：<span class="badge"><small class="h6">{{ art.numlook }}</small></span>
+                            最后编辑于：{{ art.timestamp }}
                         </div>
-                        <div style="float:right;">
-                            <a href="{{ url_for('article_edit',id=post.id) }}">
-                                <img src="{{ url_for('static',filename='img/edit.png') }}"/>
-                            </a>
-                        </div>
-                    </div>
-                    <div id="content">
-                        <hr/>
-                        {{ post.text[:200] }}...
-                    </div>
-                    <div id="content" style="height:25px;line-height: 25px">
-                        &nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp文章标签：
-                        <button class="button lebel">&nbspLINUX&nbsp</button>
-                <span style="float: right">
-                    最后编辑时间：{{ post.timestamp }}
-                </span>
-                    </div>
-                {% endfor %}
-                <div style="text-align:center">
-                    <div style="float:left">
-                        {% if article.has_prev %}
-                            <a href="{{ url_for('index', categoryname=categoryname,month=month,page = article.prev_num) }}">
-                                <img src="{{ url_for('static',filename='img/NEWER.png') }}"/>
-                            </a>
-                        {% else %}
-                            <img src="{{ url_for('static',filename='img/NEWER1.png') }}"/>
-                        {% endif %}
-                    </div>
-                    第{{ article.page }}页/共{{ article.pages }}页
-                    <div style="float:right">
-                        {% if article.has_next %}
-                            <a href="{{ url_for('index', categoryname=categoryname,month=month,page = article.next_num) }}">
-                                <img src="{{ url_for('static',filename='img/OLDER.png') }}"/>
-                            </a>
-                        {% else %}
-                            <img src="{{ url_for('static',filename='img/OLDER1.png') }}"/>
-                        {% endif %}
                     </div>
                 </div>
-            </div>
-            <div id="rightside">
-                {% if g.user.is_authenticated() %}
-                    {% include 'userinfo.html' %}
-                {% endif %}
+            {% endfor %}
+            <div class="text-left">
+                <ul class="pager">
+                    {% if article.has_prev %}
+                        <li class="previous">
+                            <a href="{{ url_for('search_result', sch=search, page=article.prev_num) }}">&larr;
+                                Newer</a>
+                        </li>
+                    {% else %}
+                        <li class="previous disabled">
+                            <a>&larr; Newer</a>
+                        </li>
+                    {% endif %}
+                    第{{ article.page }}页/共{{ article.pages }}页
+                    {% if article.has_next %}
+                        <li class="next"><a
+                                href="{{ url_for('search_result', sch=search, page=article.next_num) }}">Older &rarr;</a>
+                        </li>
+                    {% else %}
+                        <li class="next disabled"><a>Older &rarr;</a></li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
     </div>
-    <form method="post" action="/">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
-    </form>
 {% endblock %}

@@ -1,14 +1,14 @@
 # -*- coding:utf-8 -*-
 from flask.ext.wtf import Form
 from wtforms import TextField, BooleanField, TextAreaField, PasswordField, SelectField
-from wtforms.validators import Required, Length, Email, EqualTo, URL
+from wtforms.validators import Length, Email, EqualTo, URL, DataRequired
 from flask_wtf.file import FileRequired, FileAllowed, FileField
 from blog.models import User, Article, Category
 
 
 class LoginForm(Form):
-    email = TextField('email', validators=[Required(u'不能为空')])
-    passwd = PasswordField('passwd', validators=[Required(u'不能为空')])
+    email = TextField('email', validators=[DataRequired(u'不能为空')])
+    passwd = PasswordField('passwd', validators=[DataRequired(u'不能为空')])
     remember_me = BooleanField('remember_me', default=False)
 
 
@@ -21,7 +21,7 @@ class UserEditForm(Form):
 
 
 class UserChangePwdForm(Form):
-    password = PasswordField('New Password', [Required(), EqualTo('confirm', message=u'输入不匹配')])
+    password = PasswordField('New Password', [DataRequired(), EqualTo('confirm', message=u'输入不匹配')])
     confirm = PasswordField('Repeat Password')
 
 
@@ -52,9 +52,9 @@ class RegisterForm(Form):
 
 
 class ArticleCreateForm(Form):
-    title = TextField('article title', [Required(u'请输入标题！')])
+    title = TextField('article title', [DataRequired(u'请输入标题！')])
     body = TextAreaField('article body',
-                         [Required(u'文章内容不能为空！')], id='mceEditor')
+                         [DataRequired(u'文章内容不能为空！')], id='mceEditor')
     category_id = SelectField('category id', coerce=int)
     tag = TextField('tag', [Length(max=20)])
     is_open = SelectField('is_open', choices=[(0, u'不公开'), (1, u'公开')], coerce=int)
@@ -70,16 +70,16 @@ class ArticleCreateForm(Form):
 
 
 class ArticleEditForm(Form):
-    title = TextField('article title', [Required(u'请输入标题！')])
+    title = TextField('article title', [DataRequired(u'请输入标题！')])
     body = TextAreaField('article body',
-                         [Required(u'文章内容不能为空！')], id='mceEditor')
+                         [DataRequired(u'文章内容不能为空！')], id='mceEditor')
     category_id = SelectField('category id', coerce=int)
     tag = TextField('tag', [Length(max=20)])
     is_open = SelectField('is_open', choices=[(0, u'不公开'), (1, u'公开')], coerce=int)
 
 
 class CategoryForm(Form):
-    name = TextField('category name', [Required(u'请输入类别名！')])
+    name = TextField('category name', [DataRequired(u'请输入类别名！')])
     is_use = SelectField('is_use', choices=[(0, u'停用'), (1, u'在用')], coerce=int)
     seq = TextField('seq')
 
@@ -97,25 +97,25 @@ class CategoryForm(Form):
 
 
 class CategoryeditForm(Form):
-    name = TextField('category name', [Required(u'请输入类别名！')])
+    name = TextField('category name', [DataRequired(u'请输入类别名！')])
     is_use = SelectField('is_use', choices=[(0, u'停用'), (1, u'在用')], coerce=int)
     seq = TextField('seq')
 
 
 class Admin_second_barForm(Form):
-    name = TextField('name', [Required(u'请输入名称！')])
-    url = TextField('url', [Required(u'请输入链接！')])
+    name = TextField('name', [DataRequired(u'请输入名称！')])
+    url = TextField('url', [DataRequired(u'请输入链接！')])
     is_use = SelectField('is_use', choices=[(0, u'停用'), (1, u'在用')], coerce=int)
     seq = TextField('seq')
-    icon = TextField('seq', [Required(u'请输入图片类！')])
+    icon = TextField('seq', [DataRequired(u'请输入图片类！')])
 
 
 class settingsForm(Form):
-    blog_name = TextField('blog_name', [Required(u'请输入博客名称！')])
+    blog_name = TextField('blog_name', [DataRequired(u'请输入博客名称！')])
 
 
 class SearchForm(Form):
-    search = TextField('search', validators=[Required()])
+    search = TextField('search', validators=[DataRequired()])
 
 
 class UploadFileForm(Form):

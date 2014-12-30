@@ -60,7 +60,10 @@
                         <small>{{ art.text[:160]+'...' }}</small>
                     </div>
                     <div class="panel-footer panel-warning text-left">
-                        标签:<a href="#"> {{ art.tag }} </a>
+                        标签:{% for t in art.tag.split(' ') %}
+                        <a data-trigger="tooltip" data-content="更多关于 {{ t }}" data-position="e"
+                           href="{{ url_for('search_result', sch=t, page=1) }}"> {{ t }} </a>
+                    {% endfor %}
 
                         <div class="pull-right">
                             访问次数：<span class="badge"><small class="h6">{{ art.numlook }}</small></span>

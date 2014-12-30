@@ -2,7 +2,7 @@
 import os
 import unittest
 
-from config import basedir
+from config import LOG_DIR
 from blog import blog, db
 from blog.models import User, Blog_info
 
@@ -11,7 +11,7 @@ class TestUser(unittest.TestCase):
     def setUp(self):
         blog.config['TESTING'] = True
         blog.config['CSRF_ENABLED'] = False
-        blog.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'test.db')
+        blog.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(LOG_DIR, 'test.db')
         self.app = blog.test_client()
         db.create_all()
 

@@ -2,7 +2,7 @@
 # -*- coding:utf-8 -*-
 __author__ = 'good'
 __createday__ = '2014-10-13'
-from config import BACKUP_DIR, SQLALCHEMY_DATABASE_URI as dburl, UPLOAD_FOLDER
+from config import BACKUP_DIR, UPLOAD_FOLDER
 from flask import render_template, redirect, url_for, g
 from flask.ext.login import login_required
 from blog import db
@@ -14,14 +14,11 @@ import zipfile
 from blog.extend.EmailHelper import backup_mail
 from blog.models import Backup_log
 
-db_type = dburl[:dburl.find(':')]
-dburl = dburl[dburl.find(':') + 1:]
-db_user = dburl[dburl.find('/') + 2:dburl.find(':')]
-dburl = dburl[dburl.find(':') + 1:]
-db_pwd = dburl[:dburl.find('@')]
-dburl = dburl[dburl.find('@') + 1:]
-db_host = dburl[:dburl.find('/')]
-db_name = dburl[dburl.find('/') + 1:]
+db_type = db.engine.url.drivername
+db_user = db.engine.url.username
+db_pwd = db.engine.url.password
+db_host = db.engine.url.host
+db_name = db.engine.url.database
 global msg
 msg = '<hr/>'
 
@@ -36,7 +33,7 @@ def dobackup():
         start_time = datetime.now()
         global msg
         msg = msg + str(start_time) + ' -> ' + u'此次备份开始' + '<br/>'
-        zip_file(UPLOAD_FOLDER, back_file, sql_dir)  # 压缩上传的附件
+        zip_file(UPLOAD_FOLDER, back_file)  # 压缩上传的附件
         backupdb(back_script)
         t = 10
         while t >= 0:
@@ -71,7 +68,7 @@ def dobackup():
         return redirect(url_for('index1'))
 
 
-def zip_file(dirname, back_file, sql_dir):  # 压缩文件夹
+def zip_file(dirname, back_file):  # 压缩文件夹
     global msg
     filelist = []
     msg = msg + str(datetime.now()) + ' -> ' + u'加载需要压缩的上传文件' + '<br/>'
@@ -108,3 +105,4 @@ def format_time():
 def backup():
     log = Backup_log.query.order_by(Backup_log.id.desc()).first()
     return render_template('admin/backup.html', log=log)
+

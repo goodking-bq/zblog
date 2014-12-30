@@ -2,6 +2,11 @@
 # -*- coding:utf-8 -*-
 __author__ = 'good'
 __create__ = '2014-11-23'
+import sys
+
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
 
 from blog.models import Article, Visit_log, Blog_info, User, Login_log, Ip_blacklist, Robot
 from blog import db
@@ -11,7 +16,7 @@ from config import ROBOT
 from blog.extend.StringHelper import get_ip_location
 import socket
 
-LogManager = Manager(usage='处理访问日志')
+LogManager = Manager(usage=u'处理访问日志')
 
 
 @LogManager.option('-i', '--id', help='清理的最大ID')
@@ -31,7 +36,7 @@ def visit_statistics(max_id):
     import socket
 
     print u'%s -> 开始归档访问数据 -----' % datetime.datetime.now()
-    logs = db.session.query(Visit_log).filter(Visit_log.id <= max_id).all()
+    logs = db.session.query(Visit_log).filter(Visit_log.id <= max_id).order_by(Visit_log.id.desc()).all()
     if logs:
         for log in logs:
             log.date = str(log.timestamp)[:10]

@@ -1,26 +1,21 @@
 # -*- coding:utf-8 -*-
 
-from blog import blog, db, lm, cache, csrf
+import datetime
+
 from flask import render_template, flash, redirect, session, url_for, request, g
+from flask.ext.login import login_user, logout_user, current_user, login_required
+from flask import json
+
+from blog import blog, db, lm, cache, csrf
 from forms import LoginForm, UserEditForm, \
     RegisterForm, ArticleCreateForm, \
-    ArticleEditForm, CategoryForm, SearchForm, UserChangePwdForm, \
-    UploadFileForm
-from flask.ext.login import login_user, logout_user, current_user, login_required
-from models import User, Settings, ROLE_USER, User_LOCKED, IS_USE, Article, Category, Visit_log, Blog_info, Login_log
-import datetime
-import json
-from blog.extend.StringHelper import random_color
+    ArticleEditForm, SearchForm, UserChangePwdForm
+from models import User, Settings, ROLE_USER, User_LOCKED, Article, Category, Visit_log, Blog_info, Login_log
 
 
-@blog.route('/', methods=['GET', 'POST'])
-@blog.route('/index', methods=['GET', 'POST'])
-@blog.route('/<string:categoryname>/<string:month>/<int:page>', methods=['GET', 'POST'])
 def index(categoryname='all', month='all', page=1):
-    user = g.user
     category = Category.query.filter_by(is_use=1).order_by(Category.seq)
     article = Article.article_per_page(categoryname, month, page)
-    count = Article.count_by_month()
     return render_template("index.html",
                            title='Home',
                            article=article,
@@ -56,6 +51,17 @@ def login():
     return render_template('login.html',
                            title=u'请登陆',
                            form=form)
+
+
+def authorized():
+    resp = weibo.authorized_response()
+    if resp is None:
+        return 'Access denied: reason=%s error=%s' % (
+            request.args['error_reason'],
+            request.args['error_description']
+        )
+    session['oauth_token'] = (resp['access_token'], '')
+    return redirect(url_for('index'))
 
 
 @login_required
@@ -244,19 +250,18 @@ def article_edit(id):
 def search():
     if not g.search_form.validate_on_submit():
         return redirect(url_for('index'))
-    return redirect(url_for('search_result', search=g.search_form.search.data, page=1))
+    return redirect(url_for('search_result', sch=g.search_form.search.data, page=1))
 
 
-def search_result(search, page=1):
+def search_result(sch, page=1):
     try:
-        result = Article.query.whoosh_search(search).order_by(Article.timestamp.desc()
-        ).paginate(page, 5, False)
+        result = Article.search(st=sch, page=page, num=5)
     except:
         result = None
     category = Category.query.filter_by(is_use=1).order_by(Category.seq)
-    return render_template("index.html",
-                           title=u'搜索:' + search,
-                           category=category,
+    return render_template("search_result.html",
+                           title=u'搜索:' + sch,
+                           search=sch,
                            article=result)
 
 
@@ -266,17 +271,18 @@ def blog_msg():
 
 # @cache.cached(unless=True)
 def blog_about():
-    from flask import json
+    return render_template('blog_about.html')
 
+
+def visit_json():
     today = datetime.datetime.now().date()
+    visits = dict()
     labels = list()
     visit = list()
     attack = list()
-    artdata = list()
     robot = list()
     real = list()
     redata = Blog_info.query.order_by(Blog_info.date.desc()).limit(15)
-    art = Article.count_by_category()
     for d in redata:
         visit.append(str(d.visit_day))
         attack.append(str(d.visit_attack_day))
@@ -291,21 +297,29 @@ def blog_about():
     for i in range(20 - len(visit)):
         de = datetime.timedelta(days=i + 1)
         labels.append(str(today + de)[5:])
+    visits['labels'] = labels
+    visits['visit'] = visit
+    visits['attack'] = attack
+    visits['robot'] = robot
+    visits['real'] = real
+    return json.dumps(visits)
+
+
+def article_json():
+    article = dict()
+    art = Article.count_by_category()
+    labels = list()
+    datas = list()
     for a in art:
+        labels.append(a.name)
         d = {
             'value': a.count,
-            'color': random_color(),
-            'highlight': random_color(),
-            'label': a.name
+            'name': a.name
         }
-        artdata.append(d)
-    return render_template('blog_about.html',
-                           labels=labels,
-                           visit=visit,
-                           attack=attack,
-                           robot=robot,
-                           real=real,
-                           artdata=json.dumps(artdata))
+        datas.append(d)
+    article['labels'] = labels
+    article['datas'] = datas
+    return json.dumps(article)
 
 
 @cache.cached(unless=True)
@@ -315,7 +329,9 @@ def blog_calendar():
 
 @cache.memoize(unless=True, timeout=60)
 def calendar_json():
-    create_article = Article.find_by_month()
+    a = request.args
+    print a['start']
+    create_article = Article.query.all()
     update_article = Article.find_edit()
     visit = Blog_info.query.all()
     data = []
@@ -329,7 +345,7 @@ def calendar_json():
     for a in update_article:
         dic = {
             'title': u'更新文章' + a.title,
-            'url': '/article_show/' + a.title,
+            'url': '/' + a.title,
             'start': str(a.timestamp)
         }
         data.append(dic)

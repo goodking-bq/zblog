@@ -20,7 +20,8 @@ setup(
         'Flask-MySQL',
         'Flask-WhooshAlchemy',
         'Flask-Mail',
-        'Flask-Migrate'
+        'Flask-Migrate',
+        'Flask-OAuthlib'
         # 'sqlalchemy',
         # 'Werkzeug',
         # 'WTForms'
