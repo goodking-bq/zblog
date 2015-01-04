@@ -44,7 +44,7 @@ def random_color():
 
 def get_avatar_url(email, size):
     md5str = md5(email).hexdigest()
-    avatar_url = 'http://www.gravatar.com/avatar/' + md5str + '?d=mm&s=' + str(size)
+    avatar_url = 'https://secure.gravatar.com/avatar/' + md5str + '?d=mm&s=' + str(size)
     return avatar_url
 
 

@@ -25,6 +25,7 @@ url('/calendar', 'views.blog_calendar')
 url('/calendar_json', 'views.calendar_json', methods=['GET', 'POST'])
 url('/visit_json', 'views.visit_json')
 url('/article_json', 'views.article_json')
+url('/article_commit', 'views.article_commit', methods=['GET', 'POST'])
 # ############ admin ###############
 
 url('/admin/main', 'admin.index1')

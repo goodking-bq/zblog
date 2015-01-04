@@ -209,7 +209,7 @@ def article_create():
             db.session.commit()
             flash(u'文章已创建！')
             Blog_info.new_article()
-            return redirect(url_for('index'))
+            return redirect(url_for('article_edit', id=article.id))
     return render_template('article_create.html',
                            title=u'创建文章',
                            form=form)
@@ -220,31 +220,54 @@ def article_edit(id):
     form = ArticleEditForm()
     form.category_id.choices = Category.choices()
     article = Article.find_by_id(int(id))
-    if form.validate_on_submit() and request.method == 'POST':
-        if not g.user.is_admin():
-            flash(u'非管理员不能编辑文章！')
-            return redirect(url_for('index'))
-        else:
-            article.title = form.title.data
-            article.body = form.body.data
-            article.category_id = form.category_id.data
-            article.tag = form.tag.data
-            article.text = request.form.get('textformat')
-            article.is_open = form.is_open.data
-            article.timestamp = datetime.datetime.now()
-            db.session.add(article)
-            db.session.commit()
-            flash(u'已保存修改!')
-            return redirect(url_for('article_edit', id=id))
-    else:
-        form.title.data = article.title
-        form.body.data = article.body
-        form.tag.data = article.tag
-        form.category_id.data = article.category_id
-        form.is_open.data = article.is_open
-    return render_template('article_create.html',
+    form.title.data = article.title
+    form.body.data = article.body
+    form.tag.data = article.tag
+    form.category_id.data = article.category_id
+    form.is_open.data = article.is_open
+    form.id.data = id
+    return render_template('article_edit.html',
                            title=u'编辑' + article.title,
                            form=form)
+
+
+@csrf.exempt
+@login_required
+def article_commit():
+    data = request.form
+    title, category, tag, is_open, body, text, id = data['title'], data['category'], data['tag'], \
+                                                    data['open'], data['body'], data['text'], data["id"]
+    print data
+    if title == '' or tag == '' or body == '' or text == '':
+        return json.dumps({'msg': u'必填字段不能为空'})
+    if id:
+        article = Article.find_by_id(int(id))
+        article.title = title
+        article.category_id = category
+        article.tag = tag
+        article.is_open = is_open
+        article.body = body
+        article.text = text
+        db.session.add(article)
+    else:
+        nowtime = datetime.datetime.now()
+        article = Article(title=title,
+                          body=body,
+                          user_id=g.user.id,
+                          category_id=category,
+                          text=text,
+                          timestamp=nowtime,
+                          tag=tag,
+                          is_open=is_open
+        )
+        article.post_date = nowtime
+        db.session.add(article)
+    try:
+        db.session.commit()
+        return json.dumps({'msg': u'保存成功'})
+    except Exception, ex:
+        print Exception, ex
+        return json.dumps({'msg': u'保存失败'})
 
 
 def search():

@@ -1,10 +1,13 @@
 # -*- coding:utf-8 -*-
-from blog import db, blog, cache
-import flask.ext.whooshalchemy as whooshalchemy
 from hashlib import md5
-from config import ARTICLES_PER_PAGE, RANDOM_PASSWORD_LENGTH
 from datetime import datetime
+
+import flask.ext.whooshalchemy as whooshalchemy
+
+from blog import db, blog
+from config import ARTICLES_PER_PAGE, RANDOM_PASSWORD_LENGTH
 from blog.extend.StringHelper import get_ip_location
+
 
 ROLE_USER = 0
 ROLE_ADMIN = 1
@@ -123,15 +126,15 @@ class Article(db.Model):
     __searchable__ = ['body', 'title']
 
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(100), index=True)
-    body = db.Column(db.Text)
-    text = db.Column(db.String(4000))
-    tag = db.Column(db.String(50))
-    post_date = db.Column(db.DateTime)
-    is_open = db.Column(db.Integer)
-    timestamp = db.Column(db.DateTime, default=datetime.now())
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    title = db.Column(db.String(100), index=True, nullable=False)
+    body = db.Column(db.Text, nullable=False)
+    text = db.Column(db.String(4000), nullable=False)
+    tag = db.Column(db.String(50), nullable=False)
+    post_date = db.Column(db.DateTime, nullable=False)
+    is_open = db.Column(db.Integer, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.now(), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    category_id = db.Column(db.Integer, db.ForeignKey('category.id'), nullable=False)
     months = db.Column(db.String(7), default=str(datetime.now())[:7])
     numlook = db.Column(db.Integer)
 
@@ -243,6 +246,7 @@ class Article(db.Model):
         return art
 
         # 本月新建
+
 
 whooshalchemy.whoosh_index(blog, Article)
 
@@ -401,7 +405,7 @@ class Blog_info(db.Model):
     @classmethod
     def get_info_by_day(cls, date):
         info = Blog_info.query.order_by(Blog_info.date.desc()).first()
-        if not info:
+        if info is None:
             info = Blog_info()
             info.date = date
             info.visit_all = 0
@@ -418,33 +422,36 @@ class Blog_info(db.Model):
             db.session.add(info)
             db.session.commit()
             info = Blog_info.query.filter_by(date=date).first()
-        elif info.date > date:
-            new = Blog_info()
-            new.date = date
-            new.visit_day = 0
-            new.visit_attack_day = 0
-            new.visit_robot_day = 0
-            new.visit_all = info.visit_all
-            new.visit_attack = info.visit_attack
-            new.visit_robot = info.visit_robot
-            new.article_all = info.article_all
-            new.user_all = info.user_all
-            new.login_all = info.login_all
-            if info.date[5:7] != date[5:7]:
-                new.visit_month = 0
-                new.article_month = 0
-            else:
-                new.visit_month = info.visit_month
-                new.article_month = info.article_month
-            db.session.add(new)
-            db.session.commit()
-            info = Blog_info.query.filter_by(date=date).first()
-        elif info.date < date:
-            info = Blog_info.query.filter_by(date=date).first()
+        else:
+            if info.date < date:
+                new = Blog_info()
+                new.date = date
+                new.visit_day = 0
+                new.visit_attack_day = 0
+                new.visit_robot_day = 0
+                new.visit_all = info.visit_all
+                new.visit_attack = info.visit_attack
+                new.visit_robot = info.visit_robot
+                new.article_all = info.article_all
+                new.user_all = info.user_all
+                new.login_all = info.login_all
+                if info.date[5:7] != date[5:7]:
+                    new.visit_month = 0
+                    new.article_month = 0
+                else:
+                    new.visit_month = info.visit_month
+                    new.article_month = info.article_month
+                db.session.add(new)
+                db.session.commit()
+                info = Blog_info.query.filter_by(date=date).first()
+            elif info.date > date:
+                info = Blog_info.get_info_by_day(date)
+
         return info
 
 
     '''实时信息'''
+
 
     @classmethod
     def info(cls):
@@ -454,6 +461,7 @@ class Blog_info(db.Model):
 
 
     '''正常访问+1'''
+
 
     @classmethod
     def new_visit(cls, date):
@@ -470,6 +478,7 @@ class Blog_info(db.Model):
 
     '''机器人访问+1'''
 
+
     @classmethod
     def new_robot_visit(cls, date):
         info = Blog_info.get_info_by_day(date)
@@ -480,6 +489,7 @@ class Blog_info(db.Model):
 
 
     '''疑似攻击+1'''
+
 
     @classmethod
     def new_attack_visit(cls, date):
@@ -492,6 +502,7 @@ class Blog_info(db.Model):
 
     '''文章+1'''
 
+
     @classmethod
     def new_article(cls):
         old = Blog_info.get_info_by_day(str(datetime.now().date()))
@@ -503,6 +514,7 @@ class Blog_info(db.Model):
 
     '''用户+1'''
 
+
     @classmethod
     def new_user(cls):
         old = Blog_info.get_info_by_day(str(datetime.now().date()))
@@ -513,6 +525,7 @@ class Blog_info(db.Model):
 
     '''登陆+1'''
 
+
     @classmethod
     def new_login(cls):
         old = Blog_info.get_info_by_day(str(datetime.now().date()))
@@ -521,7 +534,7 @@ class Blog_info(db.Model):
         db.session.commit()
 
 
-'''ip黑名单'''
+    '''ip黑名单'''
 
 
 class Ip_blacklist(db.Model):

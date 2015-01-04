@@ -36,7 +36,7 @@ def visit_statistics(max_id):
     import socket
 
     print u'%s -> 开始归档访问数据 -----' % datetime.datetime.now()
-    logs = db.session.query(Visit_log).filter(Visit_log.id <= max_id).order_by(Visit_log.id.desc()).all()
+    logs = db.session.query(Visit_log).filter(Visit_log.id <= max_id).order_by(Visit_log.id).all()
     if logs:
         for log in logs:
             log.date = str(log.timestamp)[:10]

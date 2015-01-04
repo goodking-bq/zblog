@@ -7,7 +7,7 @@
                 <div class="col-lg-6">
                     <div class="input-group">
                         <span class="input-group-addon">{{ form.title.label }}</span>
-                        {{ form.title(size=50,class="form-control") }}
+                        {{ form.title(size=50,class="form-control",id='title') }}
                         {% for error in form.errors.title %}
                             <span style="color: red;">{{ error }}</span>
                         {% endfor %}
@@ -16,7 +16,7 @@
                 <div class="col-lg-3 pull-right">
                     <div class="input-group ">
                         <span class="input-group-addon">{{ form.category_id.label }}</span>
-                        {{ form.category_id(class="form-control",placeholder="--选择--") }}
+                        {{ form.category_id(class="form-control",placeholder="--选择--",id='category') }}
                         {% for error in form.errors.category_id %}
                             <span style="color: red;">{{ error }}</span>
                         {% endfor %}
@@ -29,7 +29,7 @@
                 <div class="col-lg-6">
                     <div class="input-group">
                         <span class="input-group-addon">{{ form.tag.label }}</span>
-                        {{ form.tag(size=50,class="form-control") }}
+                        {{ form.tag(size=50,class="form-control",id='tag') }}
                         {% for error in form.errors.tag %}
                             <span style="color: red;">{{ error }}</span>
                         {% endfor %}
@@ -38,7 +38,7 @@
                 <div class="col-lg-3 pull-right">
                     <div class="input-group">
                         <span class="input-group-addon">{{ form.is_open.label }}</span>
-                        {{ form.is_open(class="form-control") }}
+                        {{ form.is_open(class="form-control" ,id='open') }}
                         {% for error in form.errors.is_open %}
                             <span style="color: red;">{{ error }}</span>
                         {% endfor %}
@@ -46,16 +46,27 @@
                 </div>
             </div>
             <hr/>
-            <p>{{ form.body(rows = 20,class="container",id = 'mceEditor') }}</p>
+            <p>{{ form.body(rows = 20,class="container",id='mceEditor') }}</p>
             {% for error in form.errors.body %}
                 <span style="color: red;">{{ error }}</span>
             {% endfor %}
             <hr/>
-            <input type="hidden" id='textformat' name='textformat'/>
-            <button type="image" onclick="sumarticle()" class="btn btn-success">
-                <span class="glyphicon glyphicon-ok-sign"></span> 提交
-            </button>
+            {{ form.id(type="hidden",id='id') }}
         </form>
+        <div class="row-fluid">
+            <div class="col-lg-4 ">
+                <div class="pull-right">
+                    <button type="image" onclick="sub()" class="btn btn-success">
+                        <span class="glyphicon glyphicon-ok-sign"></span> 提交
+                    </button>
+                </div>
+            </div>
+            <div class="col-lg-6 pull-left">
+                <a href="{{ url_for('article_show',title=form.title.data) }}" class="btn btn-success">
+                    <span class="glyphicon glyphicon-eye-open"></span> 查看
+                </a>
+            </div>
+        </div>
     </div>
     <br/>
     <br/>
@@ -70,7 +81,8 @@
             src="{{ url_for('static', filename='js/kindeditor-4.1.10/kindeditor-all-min.js') }}"></script>
     <script type="text/javascript"
             src="{{ url_for('static', filename='js/kindeditor-4.1.10/lang/zh_CN.js') }}"></script>
-    <script>
+    <script type="text/javascript">
+        //初始化editor
         var editor;
         KindEditor.ready(function (K) {
             editor = K.create('#mceEditor', {
@@ -80,11 +92,32 @@
         });
     </script>
     <script type="text/javascript">
-        function sumarticle() {
+        //ajax提交
+        function sub() {
+            var title = document.getElementById('title').value;
+            var category = document.getElementById('category').value;
+            var tag = document.getElementById('tag').value;
+            var open = document.getElementById('open').value;
+            var body = document.getElementById('mceEditor').value;
             var text = editor.text();
-            document.getElementById('textformat').value = text;
-            document.getElementById('article_form').sumbit();
+            var id = document.getElementById('id').value;
+            var data = {
+                "text": text, "title": title, "category": category,
+                "tag": tag, "open": open, "body": body, "id": id
+            };
+            $.ajax({
+                data: data,
+                url: "{{ url_for('article_commit') }}",
+                async: true,
+                type: "POST",
+                dataType: 'json',
+                success: function (data) {
+                    alert(data.msg);
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(textStatus);
+                }
+            });
         }
     </script>
 {% endblock %}
-                                                         
