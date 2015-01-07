@@ -24,8 +24,8 @@ MAIL_SERVER = 'smtp.exmail.qq.com'
 MAIL_PORT = 465
 MAIL_USE_TLS = False
 MAIL_USE_SSL = True
-MAIL_USERNAME = 'email@zousj.cn'
-MAIL_PASSWORD = 'z120225883'
+MAIL_USERNAME = ''
+MAIL_PASSWORD = ''
 
 """管理员邮箱配置"""
 ADMINS = ['email@zousj.cn', '120225883@qq.com']
