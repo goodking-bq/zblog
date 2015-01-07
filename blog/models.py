@@ -221,8 +221,10 @@ class Article(db.Model):
 
     # 是否再次经过编辑
     @classmethod
-    def find_edit(cls):
-        article = Article.query.filter(Article.is_open == 1, Article.post_date <> Article.timestamp).all()
+    def find_edit(cls, start, stop):
+        article = Article.query.filter(Article.is_open == 1,
+                                       Article.post_date <> Article.timestamp).filter(
+            Article.timestamp >= start).filter(Article.timestamp <= stop).all()
         return article
 
     # 统计所有博文数量

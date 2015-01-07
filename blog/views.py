@@ -2,7 +2,7 @@
 
 import datetime
 
-from flask import render_template, flash, redirect, session, url_for, request, g
+from flask import render_template, flash, redirect, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
 from flask import json
 
@@ -51,17 +51,6 @@ def login():
     return render_template('login.html',
                            title=u'请登陆',
                            form=form)
-
-
-def authorized():
-    resp = weibo.authorized_response()
-    if resp is None:
-        return 'Access denied: reason=%s error=%s' % (
-            request.args['error_reason'],
-            request.args['error_description']
-        )
-    session['oauth_token'] = (resp['access_token'], '')
-    return redirect(url_for('index'))
 
 
 @login_required
@@ -237,7 +226,6 @@ def article_commit():
     data = request.form
     title, category, tag, is_open, body, text, id = data['title'], data['category'], data['tag'], \
                                                     data['open'], data['body'], data['text'], data["id"]
-    print data
     if title == '' or tag == '' or body == '' or text == '':
         return json.dumps({'msg': u'必填字段不能为空'})
     if id:
@@ -248,6 +236,7 @@ def article_commit():
         article.is_open = is_open
         article.body = body
         article.text = text
+        article.timestamp = datetime.datetime.now()
         db.session.add(article)
     else:
         nowtime = datetime.datetime.now()
@@ -352,10 +341,10 @@ def blog_calendar():
 
 @cache.memoize(unless=True, timeout=60)
 def calendar_json():
-    a = request.args
-    print a['start']
-    create_article = Article.query.all()
-    update_article = Article.find_edit()
+    arg = request.args
+    start, stop = arg['start'], arg['end']
+    create_article = Article.query.filter(Article.post_date >= start).filter(Article.post_date <= stop).all()
+    update_article = Article.find_edit(start, stop)
     visit = Blog_info.query.all()
     data = []
     for a in create_article:

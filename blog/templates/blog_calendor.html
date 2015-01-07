@@ -8,7 +8,9 @@
           type="text/css" media='print'>
 {% endblock %}
 {% block content %}
-    <div id='calendar' style="max-width: 80%;margin: 0 auto;max-height: 100%"></div>
+    <div class="container" style="max-width: 80%">
+        <div id='calendar'></div>
+    </div>
     <form method="post" action="/">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     </form>
