@@ -4,29 +4,38 @@ import datetime
 
 from flask import render_template, flash, redirect, url_for, request, g
 from flask.ext.login import login_user, logout_user, current_user, login_required
-from flask import json
+from flask import json, session
+from flask.ext.themes import render_theme_template
 
 from blog import blog, db, lm, cache, csrf
-from forms import LoginForm, UserEditForm, \
+from blog.forms import LoginForm, UserEditForm, \
     RegisterForm, ArticleCreateForm, \
     ArticleEditForm, SearchForm, UserChangePwdForm
-from models import User, Settings, ROLE_USER, User_LOCKED, Article, Category, Visit_log, Blog_info, Login_log
+from blog.models import User, Settings, ROLE_USER, User_LOCKED, Article, Category, Visit_log, Blog_info, Login_log
+
+'''主题渲染'''
+
+
+def render(template, **context):
+    theme = session.get('theme', blog.config['DEFAULT_THEME'])
+    print theme
+    return render_theme_template(theme, template, **context)
 
 
 def index(categoryname='all', month='all', page=1):
     category = Category.query.filter_by(is_use=1).order_by(Category.seq)
     article = Article.article_per_page(categoryname, month, page)
-    return render_template("index.html",
-                           title='Home',
-                           article=article,
-                           category=category,
-                           categoryname=categoryname,
-                           month=month)
+    return render("index.html",
+                  title='Home',
+                  article=article,
+                  category=category,
+                  categoryname=categoryname,
+                  month=month)
 
 
 @lm.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+def load_user(uid):
+    return User.query.get(int(uid))
 
 
 def login():
@@ -48,9 +57,9 @@ def login():
         else:
             flash(u'用户名或密码错误')
             return redirect(url_for('login'))
-    return render_template('login.html',
-                           title=u'请登陆',
-                           form=form)
+    return render('login.html',
+                  title=u'请登陆',
+                  form=form)
 
 
 @login_required
@@ -136,10 +145,9 @@ def internal_error(error):
     return render_template('500.html'), 500
 
 
-from blog.extend.EmailHelper import register_mail
-
-
 def register():
+    from blog.extend.EmailHelper import register_mail
+
     form = RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
         pwd = User.make_random_passwd(email=form.email.data)
@@ -191,8 +199,7 @@ def article_create():
                               text=request.form.get('textformat'),
                               timestamp=nowtime,
                               tag=form.tag.data,
-                              is_open=form.is_open.data
-            )
+                              is_open=form.is_open.data)
             article.post_date = nowtime
             db.session.add(article)
             db.session.commit()
@@ -223,40 +230,41 @@ def article_edit(id):
 @csrf.exempt
 @login_required
 def article_commit():
-    data = request.form
-    title, category, tag, is_open, body, text, id = data['title'], data['category'], data['tag'], \
-                                                    data['open'], data['body'], data['text'], data["id"]
-    if title == '' or tag == '' or body == '' or text == '':
-        return json.dumps({'msg': u'必填字段不能为空'})
-    if id:
-        article = Article.find_by_id(int(id))
-        article.title = title
-        article.category_id = category
-        article.tag = tag
-        article.is_open = is_open
-        article.body = body
-        article.text = text
-        article.timestamp = datetime.datetime.now()
-        db.session.add(article)
+    if g.user.is_admin():
+        data = request.form
+        title, category, tag, is_open, body, text, art_id = data['title'], data['category'], data['tag'], \
+                                                            data['open'], data['body'], data['text'], data["id"]
+        if title == '' or tag == '' or body == '' or text == '':
+            return json.dumps({'msg': u'必填字段不能为空'})
+        if art_id:
+            article = Article.find_by_id(int(id))
+            article.title = title
+            article.category_id = category
+            article.tag = tag
+            article.is_open = is_open
+            article.body = body
+            article.text = text
+            article.timestamp = datetime.datetime.now()
+            db.session.add(article)
+        else:
+            nowtime = datetime.datetime.now()
+            article = Article(title=title,
+                              body=body,
+                              user_id=g.user.id,
+                              category_id=category,
+                              text=text,
+                              timestamp=nowtime,
+                              tag=tag,
+                              is_open=is_open)
+            article.post_date = nowtime
+        try:
+            db.session.add(article)
+            db.session.commit()
+            return json.dumps({'msg': u'保存成功'})
+        except:
+            return json.dumps({'msg': u'保存失败'})
     else:
-        nowtime = datetime.datetime.now()
-        article = Article(title=title,
-                          body=body,
-                          user_id=g.user.id,
-                          category_id=category,
-                          text=text,
-                          timestamp=nowtime,
-                          tag=tag,
-                          is_open=is_open
-        )
-        article.post_date = nowtime
-        db.session.add(article)
-    try:
-        db.session.commit()
-        return json.dumps({'msg': u'保存成功'})
-    except Exception, ex:
-        print Exception, ex
-        return json.dumps({'msg': u'保存失败'})
+        return json.dumps({'msg': u'请用管理员账号登陆'})
 
 
 def search():
@@ -270,7 +278,6 @@ def search_result(sch, page=1):
         result = Article.search(st=sch, page=page, num=5)
     except:
         result = None
-    category = Category.query.filter_by(is_use=1).order_by(Category.seq)
     return render_template("search_result.html",
                            title=u'搜索:' + sch,
                            search=sch,
@@ -283,7 +290,7 @@ def blog_msg():
 
 # @cache.cached(unless=True)
 def blog_about():
-    return render_template('blog_about.html')
+    return render_theme_template('default', 'blog_about.html')
 
 
 def visit_json():
@@ -369,3 +376,14 @@ def calendar_json():
         data.append(dic)
     return json.dumps(data)
 
+
+@blog.route('/theme')
+def theme():
+    from flask.ext.themes import get_themes_list
+
+    l = get_themes_list()
+    n = ' '
+    print l[1].name
+    for a in l:
+        n.join(a.name)
+    return l[1].name

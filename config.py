@@ -6,18 +6,18 @@ import datetime
 CSRF_ENABLED = True
 WTF_CSRF_ENABLED = True
 SECRET_KEY = '120225883@qq.com'
+""" cookie 过期时间 """
 REMEMBER_COOKIE_DURATION = datetime.timedelta(seconds=30)
 """ session 过期时间 """
 PERMANENT_SESSION_LIFETIME = datetime.timedelta(minutes=5)
 
 """本程序根目录"""
 basedir = os.path.abspath(os.path.dirname(__file__))
+appdir = os.path.join(basedir, 'blog')
 SYS = os.name
 """数据库设置"""
 # SQLALCHEMY_DATABASE_URI = 'mysql://root:zoushj726@www.zousj.cn/blog'
 SQLALCHEMY_DATABASE_URI = 'mysql://root:zoushjde@192.168.137.2/blog'
-#SQLALCHEMY_DATABASE_URI = 'sqlite:///' + os.path.join(basedir, 'blog.db')
-SQLALCHEMY_MIGRATE_REPO = os.path.join(basedir, 'db_repository')
 
 """邮件服务器设置"""
 MAIL_SERVER = 'smtp.exmail.qq.com'
@@ -29,7 +29,9 @@ MAIL_PASSWORD = ''
 
 """管理员邮箱配置"""
 ADMINS = ['email@zousj.cn', '120225883@qq.com']
-
+"""默认主题"""
+DEFAULT_THEME = 'dark'
+THEME_PATHS = os.path.join(appdir, 'themes')
 """每页显示的文章数"""
 ARTICLES_PER_PAGE = 10
 """随机密码长度"""

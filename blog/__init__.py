@@ -1,5 +1,4 @@
 # -*- coding:utf-8 -*-
-import os
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.login import LoginManager
@@ -7,8 +6,11 @@ from flask.ext.cache import Cache
 from flask.ext.script import Manager
 from flask.ext.migrate import Migrate
 from flask_wtf.csrf import CsrfProtect
-from flask_oauthlib.client import OAuth
+from flask.ext.themes import setup_themes
+from flask.ext.mail import Mail
+
 from config import LOG_DIR
+
 
 blog = Flask(__name__)
 blog.config.from_object('config')
@@ -25,20 +27,16 @@ lm.login_message = u"请先登录"
 
 cache = Cache(blog)
 
-oauth = OAuth(blog)
-
 '''控制台'''
 manager = Manager(blog)
-'''数据库更新'''
+'''数据库迁移'''
 migrate = Migrate(blog, db)
-
-# mail
-from flask.ext.mail import Mail
-
+'''邮件'''
 mymail = Mail(blog)
-
-from blog import views, models, Urls, admin, upload, backup
-
+'''主题'''
+setup_themes(blog, app_identifier='blog')
+'''Urls'''
+from blog import Urls
 
 '''日志设置'''
 '''

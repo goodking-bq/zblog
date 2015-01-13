@@ -94,11 +94,12 @@
     <script type="text/javascript">
         //ajax提交
         function sub() {
+            editor.sync();
             var title = document.getElementById('title').value;
             var category = document.getElementById('category').value;
             var tag = document.getElementById('tag').value;
             var open = document.getElementById('open').value;
-            var body = document.getElementById('mceEditor').value;
+            var body = $('#mceEditor').val();
             var text = editor.text();
             var id = document.getElementById('id').value;
             var data = {

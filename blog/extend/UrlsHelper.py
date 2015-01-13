@@ -1,5 +1,6 @@
 from werkzeug import import_string, cached_property
-from blog import blog, admin
+
+from blog import blog
 
 
 class LazyView(object):

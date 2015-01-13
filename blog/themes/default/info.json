@@ -1,0 +1,8 @@
+{
+  "application": "blog",
+  "identifier": "default",
+  "name": "Default",
+  "author": "Gooken",
+  "license": "MIT/X11",
+  "description": "An easy-to-read, green-based theme."
+}
